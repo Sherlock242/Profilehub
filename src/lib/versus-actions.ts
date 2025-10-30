@@ -1,3 +1,4 @@
+
 'use server';
 
 import { cookies } from 'next/headers';
@@ -20,7 +21,8 @@ async function getPublicAvatarUrl(
   return data?.publicUrl ? `${data.publicUrl}?t=${new Date().getTime()}` : undefined;
 }
 
-export async function getTwoRandomUsers(): Promise<VersusResult> {
+// Renamed from getTwoRandomUsers
+export async function getInitialUsers(): Promise<VersusResult> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
@@ -29,22 +31,22 @@ export async function getTwoRandomUsers(): Promise<VersusResult> {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: 'You must be logged in to vote.' };
+    // Return nothing if user is not logged in, the frontend will show a generic welcome message.
+    return {};
   }
 
-  // Fetch all profile IDs except the current user's
+  // Fetch all profiles
   const { data: profiles, error: profilesError } = await supabase
     .from('profiles')
-    .select('id, name, avatar_url')
-    .neq('id', user.id);
+    .select('id, name, avatar_url');
 
   if (profilesError) {
     return { error: 'Could not fetch users.' };
   }
 
+  // We need at least 2 users in the system to start a vote.
   if (profiles.length < 2) {
-    // Return no users and no error to render the "not enough users" state
-    return {};
+    return { error: "We need at least two users in the system to start a vote. Invite some friends!" };
   }
 
   // Get two random, distinct indices
@@ -72,6 +74,43 @@ export async function getTwoRandomUsers(): Promise<VersusResult> {
   return { users: [user1, user2] };
 }
 
+export async function getNewOpponent(winnerId: string, loserId: string): Promise<{ user?: ProfileForVote, error?: string}> {
+    const cookieStore = cookies();
+    const supabase = createClient(cookieStore);
+
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (!currentUser) {
+        return { error: 'You must be logged in.' };
+    }
+
+    // Find a new opponent that is not the winner and not the immediate previous loser.
+    // Also, don't pick the current logged-in user as an opponent for themselves.
+    const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('id, name, avatar_url')
+        .not('id', 'in', `(${winnerId}, ${loserId}, ${currentUser.id})`);
+
+    if (error) {
+        return { error: 'Failed to fetch a new opponent.' };
+    }
+
+    if (profiles.length === 0) {
+        // No other users available to be an opponent.
+        return {};
+    }
+
+    const randomIndex = Math.floor(Math.random() * profiles.length);
+    const newOpponentProfile = profiles[randomIndex];
+    
+    const newOpponent: ProfileForVote = {
+        id: newOpponentProfile.id,
+        name: newOpponentProfile.name,
+        avatarUrl: await getPublicAvatarUrl(supabase, newOpponentProfile.avatar_url),
+    };
+
+    return { user: newOpponent };
+}
+
 export async function recordVote(votedForId: string): Promise<{ error?: string }> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
@@ -83,28 +122,25 @@ export async function recordVote(votedForId: string): Promise<{ error?: string }
   if (!user) {
     return { error: 'You must be logged in to vote.' };
   }
+
+  if (user.id === votedForId) {
+      return { error: "You cannot vote for yourself." };
+  }
   
-  // Use upsert to handle potential unique constraint violations gracefully.
-  // If the user has already voted for this person, nothing happens.
-  // If not, a new vote is inserted.
-  const { error } = await supabase.from('votes').upsert({
+  // Insert a record of the vote. The unique constraint was removed, so this can be called multiple times.
+  const { error } = await supabase.from('votes').insert({
     voter_id: user.id,
     voted_for_id: votedForId,
-  }, { onConflict: 'voter_id, voted_for_id' });
+  });
 
   if (error) {
-    // We don't return the trigger-based vote count error to the client
-    if (error.message.includes('vote for themselves')) {
-       return { error: "You cannot vote for yourself." };
-    }
-    // For other errors, log them but don't expose details to the client
     console.error("Vote recording error:", error.message);
     return { error: 'An error occurred while casting your vote.' };
   }
 
-  // The trigger handles the vote count, so we just need to revalidate
-  // to show the next pair of users and update the leaderboard.
-  revalidatePath('/');
+  // The database trigger 'increment_vote_count' handles updating the profiles table.
+  // We revalidate the leaderboard path to ensure it shows the new counts.
+  // The home page revalidation is handled by the client-side state update now.
   revalidatePath('/leaderboard');
 
   return {};

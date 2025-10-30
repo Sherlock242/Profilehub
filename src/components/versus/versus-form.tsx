@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -9,14 +10,19 @@ import { type ProfileForVote } from '@/lib/definitions';
 import { recordVote } from '@/lib/versus-actions';
 import { useToast } from '@/hooks/use-toast';
 
-export function VersusForm({ users }: { users: [ProfileForVote, ProfileForVote] }) {
+interface VersusFormProps {
+    users: [ProfileForVote, ProfileForVote];
+    onVoteCasted: (winner: ProfileForVote, loser: ProfileForVote) => void;
+}
+
+export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
   const [user1, user2] = users;
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleVote = async (votedForId: string) => {
-    setIsLoading(votedForId);
-    const { error } = await recordVote(votedForId);
+  const handleVote = async (winner: ProfileForVote, loser: ProfileForVote) => {
+    setIsLoading(winner.id);
+    const { error } = await recordVote(winner.id);
     
     if (error) {
         toast({
@@ -28,52 +34,57 @@ export function VersusForm({ users }: { users: [ProfileForVote, ProfileForVote] 
     } else {
         toast({
             title: 'Vote cast!',
-            description: 'Your vote has been recorded.',
+            description: `+1 for ${winner.name}`,
         });
-        // A page refresh will be triggered by revalidation, so no need to setIsLoading(null)
+        // Let the parent component handle fetching the next opponent
+        onVoteCasted(winner, loser);
+        // We don't setIsLoading(null) here because the component will re-render with new users
     }
   };
   
-  const renderUserCard = (user: ProfileForVote) => (
-    <Card
-      key={user.id}
-      className="flex-1 w-full max-w-[calc(50%-1rem)] cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 group"
-      onClick={() => !isLoading && handleVote(user.id)}
-    >
-      <CardContent className="p-2 sm:p-4 flex flex-col items-center justify-center space-y-2 sm:space-y-3">
-        <div className="relative">
-          <Avatar className="h-24 w-24 sm:h-28 sm:w-28 border-4 border-transparent group-hover:border-primary transition-all md:h-48 md:w-48">
-            <AvatarImage src={user.avatarUrl} alt={user.name} />
-            <AvatarFallback className="text-4xl md:text-6xl">
-              <UserCircle />
-            </AvatarFallback>
-          </Avatar>
-           {isLoading === user.id && (
-             <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-full">
-               <Loader2 className="w-8 h-8 sm:w-12 sm:h-12 animate-spin text-primary" />
-             </div>
-           )}
-        </div>
-        <h2 className="text-base sm:text-lg md:text-2xl font-bold text-center truncate w-full">{user.name}</h2>
-        <Button
-          variant="outline"
-          className="w-full"
-          size="sm"
-          disabled={!!isLoading}
+  const renderUserCard = (user: ProfileForVote) => {
+    const opponent = user.id === user1.id ? user2 : user1;
+    return (
+        <Card
+            key={user.id}
+            className="flex-1 w-full max-w-[calc(50%-0.5rem)] sm:max-w-[calc(50%-1rem)] cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 group"
+            onClick={() => !isLoading && handleVote(user, opponent)}
         >
-          {isLoading === user.id ? "Voting..." : "Vote"}
-        </Button>
-      </CardContent>
-    </Card>
-  );
+            <CardContent className="p-2 sm:p-4 flex flex-col items-center justify-center space-y-2 sm:space-y-3">
+                <div className="relative">
+                    <Avatar className="h-24 w-24 sm:h-28 sm:w-28 border-4 border-transparent group-hover:border-primary transition-all md:h-48 md:w-48">
+                        <AvatarImage src={user.avatarUrl} alt={user.name} />
+                        <AvatarFallback className="text-4xl md:text-6xl">
+                        <UserCircle />
+                        </AvatarFallback>
+                    </Avatar>
+                    {isLoading === user.id && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-full">
+                        <Loader2 className="w-8 h-8 sm:w-12 sm:h-12 animate-spin text-primary" />
+                        </div>
+                    )}
+                </div>
+                <h2 className="text-base sm:text-lg md:text-2xl font-bold text-center truncate w-full">{user.name}</h2>
+                <Button
+                variant="outline"
+                className="w-full"
+                size="sm"
+                disabled={!!isLoading}
+                >
+                {isLoading === user.id ? "Voting..." : "Vote"}
+                </Button>
+            </CardContent>
+        </Card>
+    );
+    }
 
   return (
     <div className="w-full animate-fade-in-up">
        <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-center mb-2">Who would you vote for?</h1>
        <p className="text-muted-foreground text-center mb-8 md:mb-12 text-lg">Click on a profile to cast your vote.</p>
-        <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 md:gap-8">
+        <div className="flex flex-row items-stretch justify-center gap-2 sm:gap-4 md:gap-8">
             {renderUserCard(user1)}
-            <div className="text-xl sm:text-2xl md:text-4xl font-bold text-muted-foreground mx-1 sm:mx-2">VS</div>
+            <div className="flex items-center justify-center text-xl sm:text-2xl md:text-4xl font-bold text-muted-foreground mx-1 sm:mx-2">VS</div>
             {renderUserCard(user2)}
         </div>
     </div>
