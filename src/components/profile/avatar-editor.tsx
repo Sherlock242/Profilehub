@@ -34,6 +34,7 @@ export function AvatarEditor() {
         return;
       }
 
+      // Correctly call updateProfile with the path of the uploaded file.
       const success = await updateProfile({ avatar_url: uploadData.path });
       
       if (success) {
