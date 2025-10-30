@@ -1,7 +1,7 @@
 
 "use client";
 
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useRef, useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
@@ -10,14 +10,16 @@ import { Camera, Trash2, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase-client";
 
 export function AvatarEditor() {
-  const { user, updateProfile, getPublicAvatarUrl } = useAuth();
+  const { user, updateProfile } = useAuth();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && user) {
+      setPreviewUrl(URL.createObjectURL(file));
       setIsUploading(true);
       const filePath = `${user.id}/${Date.now()}_${file.name}`;
       
@@ -31,10 +33,10 @@ export function AvatarEditor() {
       if (uploadError || !uploadData) {
         toast({ variant: "destructive", title: "Failed to upload avatar", description: uploadError?.message || "An unknown error occurred." });
         setIsUploading(false);
+        setPreviewUrl(null);
         return;
       }
-
-      // Now, update the profile with the path of the uploaded file.
+      
       const success = await updateProfile({ avatar_url: uploadData.path });
       
       if (success) {
@@ -43,13 +45,14 @@ export function AvatarEditor() {
         toast({ variant: "destructive", title: "Failed to update profile with new avatar." });
       }
       setIsUploading(false);
+      setPreviewUrl(null);
     }
   };
 
   const handleDeleteAvatar = async () => {
     if (!user) return;
     setIsUploading(true);
-    // Setting avatar_url to null in DB
+    setPreviewUrl(null);
     const success = await updateProfile({ avatar_url: null }); 
     if (success) {
       toast({ title: "Avatar removed" });
@@ -58,17 +61,25 @@ export function AvatarEditor() {
     }
     setIsUploading(false);
   };
+  
+  useEffect(() => {
+    // Clean up the object URL to avoid memory leaks
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   if (!user) return null;
 
-  // Add a cache-busting query param to the avatarUrl to ensure the browser fetches the new image
-  const avatarUrlWithCacheBust = user.avatarUrl ? `${user.avatarUrl}?t=${new Date().getTime()}` : '';
+  const displayUrl = previewUrl || user.avatarUrl;
 
   return (
     <div className="flex items-center gap-6">
       <div className="relative">
         <Avatar className="h-24 w-24 border-2 border-primary/20">
-          <AvatarImage key={avatarUrlWithCacheBust} src={avatarUrlWithCacheBust} alt={user.name} />
+          <AvatarImage key={displayUrl} src={displayUrl} alt={user.name} />
           <AvatarFallback className="text-3xl">
             {user.name ? user.name.charAt(0).toUpperCase() : ''}
           </AvatarFallback>
