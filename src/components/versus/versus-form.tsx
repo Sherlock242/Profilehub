@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Loader2, UserCircle } from 'lucide-react';
+import { Loader2, UserCircle, Trophy } from 'lucide-react';
 import { type ProfileForVote } from '@/lib/definitions';
 import { recordVote } from '@/lib/versus-actions';
 import { useToast } from '@/hooks/use-toast';
@@ -64,6 +64,10 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
                     )}
                 </div>
                 <h2 className="text-base sm:text-lg md:text-2xl font-bold text-center truncate w-full">{user.name}</h2>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    <Trophy className="w-4 h-4 text-amber-400" />
+                    <span className="font-bold text-sm">{user.votes}</span>
+                </div>
                 <Button
                 variant="outline"
                 className="w-full"

@@ -38,7 +38,7 @@ export async function getInitialUsers(): Promise<VersusResult> {
   // Fetch all profiles other than the current user
   const { data: profiles, error: profilesError } = await supabase
     .from('profiles')
-    .select('id, name, avatar_url')
+    .select('id, name, avatar_url, votes')
     .not('id', 'eq', user.id);
 
 
@@ -65,12 +65,14 @@ export async function getInitialUsers(): Promise<VersusResult> {
     id: profile1.id,
     name: profile1.name,
     avatarUrl: await getPublicAvatarUrl(supabase, profile1.avatar_url),
+    votes: profile1.votes,
   };
 
   const user2: ProfileForVote = {
     id: profile2.id,
     name: profile2.name,
     avatarUrl: await getPublicAvatarUrl(supabase, profile2.avatar_url),
+    votes: profile2.votes,
   };
 
   return { users: [user1, user2] };

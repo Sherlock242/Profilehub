@@ -5,7 +5,9 @@ export type AppUser = {
   avatarUrl?: string;
 };
 
-export type ProfileForVote = Pick<AppUser, "id" | "name" | "avatarUrl">;
+export type ProfileForVote = Pick<AppUser, "id" | "name" | "avatarUrl"> & {
+  votes: number;
+};
 
 export type LeaderboardEntry = {
   rank: number;
