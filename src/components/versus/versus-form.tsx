@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface VersusFormProps {
     users: [ProfileForVote, ProfileForVote];
-    onVoteCasted: (winner: ProfileForVote, loser: ProfileForVote) => void;
+    onVoteCasted: () => void;
 }
 
 export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
@@ -20,7 +20,7 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleVote = async (winner: ProfileForVote, loser: ProfileForVote) => {
+  const handleVote = async (winner: ProfileForVote) => {
     setIsLoading(winner.id);
     const { error } = await recordVote(winner.id);
     
@@ -36,19 +36,18 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
             title: 'Vote cast!',
             description: `+1 for ${winner.name}`,
         });
-        // Let the parent component handle fetching the next opponent
-        onVoteCasted(winner, loser);
+        // Let the parent component handle fetching the next round
+        onVoteCasted();
         // We don't setIsLoading(null) here because the component will re-render with new users
     }
   };
   
   const renderUserCard = (user: ProfileForVote) => {
-    const opponent = user.id === user1.id ? user2 : user1;
     return (
         <Card
             key={user.id}
             className="flex-1 w-full max-w-[calc(50%-0.5rem)] sm:max-w-[calc(50%-1rem)] cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 group"
-            onClick={() => !isLoading && handleVote(user, opponent)}
+            onClick={() => !isLoading && handleVote(user)}
         >
             <CardContent className="p-2 sm:p-4 flex flex-col items-center justify-center space-y-2 sm:space-y-3">
                 <div className="relative">

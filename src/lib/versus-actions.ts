@@ -48,7 +48,7 @@ export async function getInitialUsers(): Promise<VersusResult> {
 
   // We need at least 2 other users in the system to start a vote.
   if (profiles.length < 2) {
-    return { error: "There are not enough other users to start a vote. Invite some friends!" };
+    return { error: "There are not enough other users to start a vote." };
   }
 
   // Get two random, distinct indices
@@ -76,43 +76,6 @@ export async function getInitialUsers(): Promise<VersusResult> {
   return { users: [user1, user2] };
 }
 
-export async function getNewOpponent(winnerId: string, loserId: string): Promise<{ user?: ProfileForVote, error?: string}> {
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
-    if (!currentUser) {
-        return { error: 'You must be logged in.' };
-    }
-
-    // Find a new opponent that is not the winner and not the immediate previous loser.
-    // Also, don't pick the current logged-in user as an opponent for themselves.
-    const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select('id, name, avatar_url')
-        .not('id', 'in', `(${winnerId}, ${loserId}, ${currentUser.id})`);
-
-    if (error) {
-        return { error: 'Failed to fetch a new opponent.' };
-    }
-
-    if (profiles.length === 0) {
-        // No other users available to be an opponent.
-        return {};
-    }
-
-    const randomIndex = Math.floor(Math.random() * profiles.length);
-    const newOpponentProfile = profiles[randomIndex];
-    
-    const newOpponent: ProfileForVote = {
-        id: newOpponentProfile.id,
-        name: newOpponentProfile.name,
-        avatarUrl: await getPublicAvatarUrl(supabase, newOpponentProfile.avatar_url),
-    };
-
-    return { user: newOpponent };
-}
-
 export async function recordVote(votedForId: string): Promise<{ error?: string }> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
@@ -129,7 +92,7 @@ export async function recordVote(votedForId: string): Promise<{ error?: string }
       return { error: "You cannot vote for yourself." };
   }
   
-  // Insert a record of the vote. The unique constraint was removed, so this can be called multiple times.
+  // Insert a record of the vote.
   const { error } = await supabase.from('votes').insert({
     voter_id: user.id,
     voted_for_id: votedForId,
@@ -142,7 +105,6 @@ export async function recordVote(votedForId: string): Promise<{ error?: string }
 
   // The database trigger 'increment_vote_count' handles updating the profiles table.
   // We revalidate the leaderboard path to ensure it shows the new counts.
-  // The home page revalidation is handled by the client-side state update now.
   revalidatePath('/leaderboard');
 
   return {};

@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getInitialUsers, getNewOpponent } from '@/lib/versus-actions';
+import { getInitialUsers } from '@/lib/versus-actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { VersusForm } from '@/components/versus/versus-form';
 import { type ProfileForVote } from '@/lib/definitions';
@@ -13,52 +13,46 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchUsers = () => {
+    setIsLoading(true);
     getInitialUsers()
       .then(({ users, error }) => {
         if (error) {
           setError(error);
+          setUsers(null);
         } else if (users) {
           setUsers(users);
+          setError(null);
+        } else {
+          // No error, but no users (logged out)
+          setUsers(null);
+          setError(null);
         }
       })
       .finally(() => {
         setIsLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchUsers();
   }, []);
 
-  const handleVoteCasted = async (winner: ProfileForVote, loser: ProfileForVote) => {
-    const { user: newOpponent, error: newOpponentError } = await getNewOpponent(winner.id, loser.id);
-    
-    if (newOpponentError) {
-      // If we can't get a new opponent, we show the error and stop the game.
-      // A more robust solution might fetch two completely new users.
-      setError(newOpponentError);
-      setUsers(null); // Clear users to show error state
-    } else if (newOpponent) {
-      // Randomly decide if the winner is on the left or right for the next round
-      if (Math.random() > 0.5) {
-        setUsers([winner, newOpponent]);
-      } else {
-        setUsers([newOpponent, winner]);
-      }
-    } else {
-        // This case happens if there are no other opponents left.
-        setError("There are no more opponents to challenge. Invite more friends!");
-        setUsers(null);
-    }
+  const handleVoteCasted = async () => {
+    // After a vote, just fetch two new random users.
+    fetchUsers();
   };
   
   if (isLoading) {
     return (
         <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
              <div className="w-full animate-fade-in-up">
-                <Skeleton className="h-12 w-3/4 mx-auto mb-2" />
-                <Skeleton className="h-6 w-1/2 mx-auto mb-12" />
-                <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 md:gap-8">
-                    <Skeleton className="flex-1 w-full max-w-[calc(50%-1rem)] h-56 sm:h-64 md:h-96" />
-                    <div className="text-xl sm:text-2xl md:text-4xl font-bold text-muted-foreground mx-1 sm:mx-2">VS</div>
-                    <Skeleton className="flex-1 w-full max-w-[calc(50%-1rem)] h-56 sm:h-64 md:h-96" />
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-center mb-2"><Skeleton className="h-12 w-3/4 mx-auto" /></h1>
+                <p className="text-muted-foreground text-center mb-8 md:mb-12 text-lg"><Skeleton className="h-6 w-1/2 mx-auto" /></p>
+                <div className="flex flex-row items-stretch justify-center gap-2 sm:gap-4 md:gap-8">
+                    <Skeleton className="flex-1 w-full max-w-[calc(50%-0.5rem)] sm:max-w-[calc(50%-1rem)] h-[170px] sm:h-[190px] md:h-[290px]" />
+                    <div className="flex items-center justify-center text-xl sm:text-2xl md:text-4xl font-bold text-muted-foreground mx-1 sm:mx-2">VS</div>
+                    <Skeleton className="flex-1 w-full max-w-[calc(50%-0.5rem)] sm:max-w-[calc(50%-1rem)] h-[170px] sm:h-[190px] md:h-[290px]" />
                 </div>
             </div>
         </div>
@@ -68,9 +62,9 @@ export default function HomePage() {
   if (error) {
      return (
         <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-             <Alert variant="destructive" className="max-w-md animate-fade-in">
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
+             <Alert className="max-w-md animate-fade-in">
+                <AlertTitle>Welcome!</AlertTitle>
+                <AlertDescription>{error} Invite some friends to join!</AlertDescription>
             </Alert>
         </div>
      )
