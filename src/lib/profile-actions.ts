@@ -54,38 +54,54 @@ export async function updateAvatar(payload: UpdateAvatarPayload): Promise<FormSt
     if (!user) {
         return { error: "You must be logged in." };
     }
+    
+    // 1. Get the path of the old avatar before uploading the new one
+    const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', user.id)
+        .single();
 
-    const { file: base64String, fileName } = payload;
+    if (profileError) {
+        return { error: "Could not find user profile." };
+    }
+    const oldPath = profile?.avatar_url;
 
+    // 2. Upload the new avatar
+    const { file: base64String, fileName, fileType } = payload;
     if (!base64String) {
         return { error: "No file selected." };
     }
     
-    // Convert base64 to buffer
     const fileBuffer = Buffer.from(base64String.split(',')[1], 'base64');
+    const newPath = `${user.id}/${Date.now()}_${fileName}`;
     
-    const filePath = `${user.id}/${Date.now()}_${fileName}`;
     const { data: uploadData, error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(filePath, fileBuffer, {
-          contentType: payload.fileType,
-          upsert: true,
+        .upload(newPath, fileBuffer, {
+          contentType: fileType,
+          upsert: false, // Important: don't upsert, as we want a unique path
         });
 
     if (uploadError || !uploadData) {
         return { error: uploadError?.message || "Failed to upload avatar." };
     }
     
+    // 3. Update the profile with the new avatar path
     const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: uploadData.path })
         .eq('id', user.id);
 
     if (updateError) {
-        // If updating the profile fails, we should try to remove the uploaded file
-        // to avoid orphaned files in storage.
-        await supabase.storage.from("avatars").remove([filePath]);
+        // If updating the profile fails, remove the newly uploaded file.
+        await supabase.storage.from("avatars").remove([newPath]);
         return { error: updateError.message };
+    }
+
+    // 4. If everything was successful, delete the old avatar file
+    if (oldPath) {
+        await supabase.storage.from('avatars').remove([oldPath]);
     }
     
     revalidatePath('/profile');
