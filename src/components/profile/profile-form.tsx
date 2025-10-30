@@ -87,7 +87,7 @@ export function ProfileForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading} size="sm" className="px-6">
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Save changes
         </Button>
