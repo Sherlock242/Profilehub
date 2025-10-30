@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -16,6 +17,12 @@ import { Logo } from "./logo";
 import { type AppUser } from "@/lib/definitions";
 import { logout } from "@/lib/auth-actions";
 import { useRouter } from "next/navigation";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function Header({ user }: { user: AppUser | null }) {
   const router = useRouter();
@@ -31,14 +38,21 @@ export function Header({ user }: { user: AppUser | null }) {
         <Logo />
         <nav className="flex items-center space-x-4 mx-auto">
           {user && (
-            <>
-              <Button variant="ghost" asChild>
-                <Link href="/leaderboard">
-                  <Trophy className="mr-2 h-4 w-4" />
-                  Leaderboard
-                </Link>
-              </Button>
-            </>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" asChild size="icon">
+                    <Link href="/leaderboard">
+                      <Trophy className="h-5 w-5" />
+                      <span className="sr-only">Leaderboard</span>
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Leaderboard</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
