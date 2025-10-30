@@ -37,27 +37,28 @@ export function VersusForm({ users }: { users: [ProfileForVote, ProfileForVote] 
   const renderUserCard = (user: ProfileForVote) => (
     <Card
       key={user.id}
-      className="w-full max-w-sm cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 group"
+      className="w-full max-w-[180px] cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 group"
       onClick={() => !isLoading && handleVote(user.id)}
     >
-      <CardContent className="p-6 flex flex-col items-center justify-center space-y-4">
+      <CardContent className="p-4 flex flex-col items-center justify-center space-y-3">
         <div className="relative">
-          <Avatar className="h-48 w-48 border-4 border-transparent group-hover:border-primary transition-all">
+          <Avatar className="h-28 w-28 border-4 border-transparent group-hover:border-primary transition-all md:h-48 md:w-48">
             <AvatarImage src={user.avatarUrl} alt={user.name} />
-            <AvatarFallback className="text-6xl">
+            <AvatarFallback className="text-4xl md:text-6xl">
               <UserCircle />
             </AvatarFallback>
           </Avatar>
            {isLoading === user.id && (
              <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-full">
-               <Loader2 className="w-16 h-16 animate-spin text-primary" />
+               <Loader2 className="w-12 h-12 animate-spin text-primary" />
              </div>
            )}
         </div>
-        <h2 className="text-2xl font-bold text-center">{user.name}</h2>
+        <h2 className="text-lg md:text-2xl font-bold text-center truncate w-full">{user.name}</h2>
         <Button
           variant="outline"
           className="w-full"
+          size="sm"
           disabled={!!isLoading}
         >
           {isLoading === user.id ? "Voting..." : "Vote"}
@@ -69,10 +70,10 @@ export function VersusForm({ users }: { users: [ProfileForVote, ProfileForVote] 
   return (
     <div className="w-full animate-fade-in-up">
        <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-center mb-2">Who would you vote for?</h1>
-       <p className="text-muted-foreground text-center mb-12 text-lg">Click on a profile to cast your vote.</p>
-        <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+       <p className="text-muted-foreground text-center mb-8 md:mb-12 text-lg">Click on a profile to cast your vote.</p>
+        <div className="flex flex-row items-center justify-center gap-4 md:gap-16">
             {renderUserCard(user1)}
-            <div className="text-4xl font-bold text-muted-foreground my-4 md:my-0">VS</div>
+            <div className="text-2xl md:text-4xl font-bold text-muted-foreground mx-2 md:my-0">VS</div>
             {renderUserCard(user2)}
         </div>
     </div>
