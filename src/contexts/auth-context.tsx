@@ -15,7 +15,6 @@ type AuthContextType = {
   register: (name: string, email: string, pass: string) => Promise<boolean>;
   updateProfile: (data: {name?: string, avatar_url?: string | null}) => Promise<boolean>;
   changePassword: (newPass: string) => Promise<boolean>;
-  getPublicAvatarUrl: (avatarPath: string) => string | undefined;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,7 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const getPublicAvatarUrl = (avatarPath: string): string | undefined => {
+  const getPublicAvatarUrl = (avatarPath: string | null): string | undefined => {
     if (!avatarPath) return undefined;
     
     const { data } = supabase
@@ -33,7 +32,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from('avatars')
       .getPublicUrl(avatarPath);
 
-    return data?.publicUrl;
+    // Add a cache-busting parameter to the URL
+    return data?.publicUrl ? `${data.publicUrl}?t=${new Date().getTime()}`: undefined;
   }
 
   useEffect(() => {
@@ -72,13 +72,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
       
       if(profile) {
-        const publicUrl = profile.avatar_url ? getPublicAvatarUrl(profile.avatar_url) : undefined;
+        const publicUrl = getPublicAvatarUrl(profile.avatar_url);
         setUser({
           id: profile.id,
           name: profile.name,
           email: session.user.email!,
           avatarUrl: publicUrl,
         });
+      } else {
+         // This handles the case where a user exists in auth but not in profiles yet.
+        const { data: newUserProfile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        if (newUserProfile) {
+           const publicUrl = getPublicAvatarUrl(newUserProfile.avatar_url);
+           setUser({
+            id: newUserProfile.id,
+            name: newUserProfile.name,
+            email: session.user.email!,
+            avatarUrl: publicUrl,
+          });
+        }
       }
     } else {
       setUser(null);
@@ -97,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (name: string, email: string, pass: string): Promise<boolean> => {
-    const { error } = await supabase.auth.signUp({
+    const { data: authData, error } = await supabase.auth.signUp({
       email,
       password: pass,
       options: {
@@ -106,6 +122,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       },
     });
+    // The trigger will create the profile, so we manually refresh the session
+    if (authData.session) {
+      await handleAuthChange(authData.session);
+    }
     return !error;
   };
 
@@ -130,11 +150,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return !error;
   };
   
-  const value = { user, loading, login, logout, register, updateProfile, changePassword, getPublicAvatarUrl };
+  const value = { user, loading, login, logout, register, updateProfile, changePassword };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }

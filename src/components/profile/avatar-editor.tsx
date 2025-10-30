@@ -35,7 +35,7 @@ export function AvatarEditor() {
       .from("avatars")
       .upload(filePath, selectedFile, {
         cacheControl: '3600',
-        upsert: true,
+        upsert: false, // Use false to avoid overwriting; we have a unique path
       });
 
     if (uploadError || !uploadData) {
@@ -44,15 +44,8 @@ export function AvatarEditor() {
       return;
     }
     
-    const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(uploadData.path);
-    
-    if (!publicUrlData.publicUrl) {
-        toast({ variant: "destructive", title: "Failed to get public URL for avatar." });
-        setIsUploading(false);
-        return;
-    }
-    
-    const success = await updateProfile({ avatar_url: publicUrlData.publicUrl + `?t=${new Date().getTime()}` });
+    // IMPORTANT: Store only the path, not the full public URL
+    const success = await updateProfile({ avatar_url: uploadData.path });
     
     if (success) {
       toast({ title: "Avatar updated successfully" });
@@ -67,6 +60,7 @@ export function AvatarEditor() {
   const handleDeleteAvatar = async () => {
     if (!user) return;
     setIsUploading(true);
+    // Set avatar_url to null in the database
     const success = await updateProfile({ avatar_url: null }); 
     if (success) {
       toast({ title: "Avatar removed" });
@@ -114,14 +108,16 @@ export function AvatarEditor() {
           className="hidden"
           accept="image/png, image/jpeg"
         />
-        <Button
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isUploading}
-          size="sm"
-        >
-          <Camera className="mr-2 h-4 w-4" />
-          Change photo
-        </Button>
+        {!selectedFile && (
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              size="sm"
+            >
+              <Camera className="mr-2 h-4 w-4" />
+              Change photo
+            </Button>
+        )}
 
         {selectedFile && (
            <Button onClick={handleUpload} disabled={isUploading} size="sm">
