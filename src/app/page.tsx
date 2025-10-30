@@ -6,7 +6,8 @@ import { getInitialUsers } from '@/lib/versus-actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { VersusForm } from '@/components/versus/versus-form';
 import { type ProfileForVote } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
+import { VersusFormSkeleton } from '@/components/versus/versus-form-skeleton';
+
 
 export default function HomePage() {
   const [users, setUsers] = useState<[ProfileForVote, ProfileForVote] | null>(null);
@@ -53,6 +54,7 @@ export default function HomePage() {
      )
   }
 
+  // Always render the main structure, and show skeletons inside the form when loading.
   if (!isLoading && users) {
       return (
         <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
@@ -60,22 +62,15 @@ export default function HomePage() {
         </div>
       );
   }
-
+  
   if (isLoading) {
     return (
-      <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-           <div className="w-full animate-fade-in-up">
-              <h1 className="text-xl md:text-5xl font-bold tracking-tighter text-center mb-2">Who would you vote for?</h1>
-              <p className="text-muted-foreground text-center mb-8 md:mb-12 text-base">Click on a profile to cast your vote.</p>
-              <div className="flex flex-row items-stretch justify-center gap-2 sm:gap-4 md:gap-8">
-                  <Skeleton className="flex-1 w-full max-w-[calc(50%-0.5rem)] sm:max-w-[calc(50%-1rem)] h-[250px] sm:h-[290px] md:h-[350px]" />
-                  <div className="flex items-center justify-center text-xl sm:text-2xl md:text-4xl font-bold text-muted-foreground mx-1 sm:mx-2">VS</div>
-                  <Skeleton className="flex-1 w-full max-w-[calc(50%-0.5rem)] sm:max-w-[calc(50%-1rem)] h-[250px] sm:h-[290px] md:h-[350px]" />
-              </div>
-          </div>
-      </div>
-    );
+       <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
+          <VersusFormSkeleton />
+       </div>
+    )
   }
+
 
   // Fallback for non-logged-in users or initial state
   return (
