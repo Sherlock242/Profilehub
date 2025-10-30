@@ -47,7 +47,7 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
         >
             <CardContent className="p-2 sm:p-4 flex flex-col items-center justify-center space-y-2 sm:space-y-3">
                 <div className="relative">
-                    <Avatar className="h-24 w-24 sm:h-28 sm:w-28 border-4 border-transparent group-hover:border-primary transition-all md:h-48 md:w-48">
+                    <Avatar className="h-20 w-20 sm:h-28 sm:w-28 border-4 border-transparent group-hover:border-primary transition-all md:h-48 md:w-48">
                         <AvatarImage src={user.avatarUrl} alt={user.name} />
                         <AvatarFallback className="text-4xl md:text-6xl">
                         <UserCircle />
@@ -59,7 +59,7 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
                         </div>
                     )}
                 </div>
-                <h2 className="text-base sm:text-lg md:text-2xl font-bold text-center truncate w-full">{user.name}</h2>
+                <h2 className="text-sm sm:text-lg md:text-2xl font-bold text-center truncate w-full">{user.name}</h2>
                 <div className="flex items-center gap-2 text-muted-foreground">
                     <Trophy className="w-4 h-4 text-amber-400" />
                     <span className="font-bold text-sm">{user.votes}</span>
@@ -79,8 +79,8 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
 
   return (
     <div className="w-full animate-fade-in-up">
-       <h1 className="text-3xl md:text-5xl font-bold tracking-tighter text-center mb-2">Who would you vote for?</h1>
-       <p className="text-muted-foreground text-center mb-8 md:mb-12 text-lg">Click on a profile to cast your vote.</p>
+       <h1 className="text-2xl md:text-5xl font-bold tracking-tighter text-center mb-2">Who would you vote for?</h1>
+       <p className="text-muted-foreground text-center mb-8 md:mb-12 text-base">Click on a profile to cast your vote.</p>
         <div className="flex flex-row items-stretch justify-center gap-2 sm:gap-4 md:gap-8">
             {renderUserCard(user1)}
             <div className="flex items-center justify-center text-xl sm:text-2xl md:text-4xl font-bold text-muted-foreground mx-1 sm:mx-2">VS</div>
