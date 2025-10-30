@@ -6,37 +6,49 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Camera, Trash2, Loader2 } from "lucide-react";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { supabase } from "@/lib/supabase-client";
 
 export function AvatarEditor() {
   const { user, updateProfile } = useAuth();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const defaultAvatar = PlaceHolderImages.find(img => img.id === 'default-avatar')?.imageUrl;
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && user) {
       setIsUploading(true);
-      // Simulate upload delay
-      await new Promise(res => setTimeout(res, 1000));
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const success = await updateProfile({ avatarUrl: reader.result as string });
-        if (success) {
-          toast({ title: "Avatar updated successfully" });
-        } else {
-          toast({ variant: "destructive", title: "Failed to update avatar" });
-        }
+      const filePath = `${user.id}/${Date.now()}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        toast({ variant: "destructive", title: "Failed to upload avatar" });
         setIsUploading(false);
-      };
-      reader.readAsDataURL(file);
+        return;
+      }
+      
+      const { data } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      const success = await updateProfile({ avatar_url: data.publicUrl });
+      
+      if (success) {
+        toast({ title: "Avatar updated successfully" });
+      } else {
+        toast({ variant: "destructive", title: "Failed to update avatar" });
+      }
+      setIsUploading(false);
     }
   };
 
   const handleDeleteAvatar = async () => {
-    const success = await updateProfile({ avatarUrl: defaultAvatar });
+    // We will set the avatar_url to null in the profiles table
+    // You might want to also delete the file from the storage bucket
+    const success = await updateProfile({ avatar_url: undefined });
     if (success) {
       toast({ title: "Avatar removed" });
     } else {
@@ -79,7 +91,7 @@ export function AvatarEditor() {
         <Button
           variant="outline"
           onClick={handleDeleteAvatar}
-          disabled={isUploading || user.avatarUrl === defaultAvatar}
+          disabled={isUploading || !user.avatarUrl}
         >
           <Trash2 className="mr-2 h-4 w-4" />
           Delete
