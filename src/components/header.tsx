@@ -24,9 +24,9 @@ export function Header() {
       <div className="container flex h-16 items-center">
         <Logo />
         <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="flex items-center space-x-2">
+          <nav className="flex items-center space-x-1">
             {loading ? (
-              <Skeleton className="h-10 w-24" />
+              <Skeleton className="h-9 w-24" />
             ) : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -69,10 +69,10 @@ export function Header() {
               </DropdownMenu>
             ) : (
               <>
-                <Button variant="ghost" asChild>
+                <Button variant="ghost" asChild size="sm">
                   <Link href="/login">Log in</Link>
                 </Button>
-                <Button asChild>
+                <Button asChild size="sm">
                   <Link href="/signup">Sign Up</Link>
                 </Button>
               </>
