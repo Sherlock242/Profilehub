@@ -36,8 +36,8 @@ export default async function HomePage() {
         <VersusForm users={users} />
       ) : (
          <Alert className="max-w-md animate-fade-in">
-          <AlertTitle>All Clear!</AlertTitle>
-          <AlertDescription>Looks like there are no other users to compare right now.</AlertDescription>
+          <AlertTitle>Almost there!</AlertTitle>
+          <AlertDescription>We need at least three users in the system to start a vote (you and two others to compare). Invite some friends to join!</AlertDescription>
         </Alert>
       )}
     </div>
