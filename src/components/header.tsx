@@ -33,7 +33,7 @@ export function Header({ user }: { user: AppUser | null }) {
           {user && (
             <>
               <Button variant="ghost" asChild>
-                <Link href="/versus">
+                <Link href="/">
                   <Swords className="mr-2 h-4 w-4" />
                   Versus
                 </Link>
