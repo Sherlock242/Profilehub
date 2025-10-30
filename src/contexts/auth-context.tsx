@@ -15,7 +15,7 @@ type AuthContextType = {
   register: (name: string, email: string, pass: string) => Promise<boolean>;
   updateProfile: (data: {name?: string, avatar_url?: string | null}) => Promise<boolean>;
   changePassword: (newPass: string) => Promise<boolean>;
-  getSignedAvatarUrl: (avatarPath: string) => Promise<string | undefined>;
+  getPublicAvatarUrl: (avatarPath: string) => string | undefined;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,19 +25,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const getSignedAvatarUrl = async (avatarPath: string): Promise<string | undefined> => {
+  const getPublicAvatarUrl = (avatarPath: string): string | undefined => {
     if (!avatarPath) return undefined;
     
-    const { data, error } = await supabase
+    const { data } = supabase
       .storage
       .from('avatars')
-      .createSignedUrl(avatarPath, 60 * 60); // 1 hour expiry
+      .getPublicUrl(avatarPath);
 
-    if (error) {
-      console.error('Error creating signed URL for avatar:', error);
-      return undefined;
-    }
-    return data.signedUrl;
+    return data?.publicUrl;
   }
 
   useEffect(() => {
@@ -51,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setLoading(true);
-        if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
+        if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
           await handleAuthChange(session);
         }
         if (event === 'SIGNED_OUT') {
@@ -76,12 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
       
       if(profile) {
-        const signedUrl = profile.avatar_url ? await getSignedAvatarUrl(profile.avatar_url) : undefined;
+        const publicUrl = profile.avatar_url ? getPublicAvatarUrl(profile.avatar_url) : undefined;
         setUser({
           id: profile.id,
           name: profile.name,
           email: session.user.email!,
-          avatarUrl: signedUrl,
+          avatarUrl: publicUrl,
         });
       }
     } else {
@@ -116,12 +112,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateProfile = async (data: {name?: string, avatar_url?: string | null}): Promise<boolean> => {
     if (!user) return false;
     
-    const updateData = { ...data };
-    
-    const { error } = await supabase.from('profiles').update(updateData).eq('id', user.id);
+    const { error } = await supabase.from('profiles').update(data).eq('id', user.id);
     
     if (!error) {
-      // Refresh auth state to get new signed url
+      // Manually trigger a refresh of the user state
       const { data: { session } } = await supabase.auth.getSession();
       await handleAuthChange(session);
       return true;
@@ -136,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return !error;
   };
   
-  const value = { user, loading, login, logout, register, updateProfile, changePassword, getSignedAvatarUrl };
+  const value = { user, loading, login, logout, register, updateProfile, changePassword, getPublicAvatarUrl };
 
   return (
     <AuthContext.Provider value={value}>

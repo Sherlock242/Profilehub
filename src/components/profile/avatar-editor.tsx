@@ -10,7 +10,7 @@ import { Camera, Trash2, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase-client";
 
 export function AvatarEditor() {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, getPublicAvatarUrl } = useAuth();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -34,7 +34,7 @@ export function AvatarEditor() {
         return;
       }
 
-      // Correctly call updateProfile with the path of the uploaded file.
+      // Now, update the profile with the path of the uploaded file.
       const success = await updateProfile({ avatar_url: uploadData.path });
       
       if (success) {
@@ -61,11 +61,14 @@ export function AvatarEditor() {
 
   if (!user) return null;
 
+  // Add a cache-busting query param to the avatarUrl to ensure the browser fetches the new image
+  const avatarUrlWithCacheBust = user.avatarUrl ? `${user.avatarUrl}?t=${new Date().getTime()}` : '';
+
   return (
     <div className="flex items-center gap-6">
       <div className="relative">
         <Avatar className="h-24 w-24 border-2 border-primary/20">
-          <AvatarImage key={user.avatarUrl} src={user.avatarUrl} alt={user.name} />
+          <AvatarImage key={avatarUrlWithCacheBust} src={avatarUrlWithCacheBust} alt={user.name} />
           <AvatarFallback className="text-3xl">
             {user.name ? user.name.charAt(0).toUpperCase() : ''}
           </AvatarFallback>
