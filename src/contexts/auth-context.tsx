@@ -13,7 +13,7 @@ type AuthContextType = {
   login: (email: string, pass: string) => Promise<boolean>;
   logout: () => void;
   register: (name: string, email: string, pass: string) => Promise<boolean>;
-  updateProfile: (data: {name?: string, avatar_url?: string}) => Promise<boolean>;
+  updateProfile: (data: {name?: string, avatar_url?: string | null}) => Promise<boolean>;
   changePassword: (newPass: string) => Promise<boolean>;
   getSignedAvatarUrl: (avatarPath: string) => Promise<string | undefined>;
 };
@@ -113,14 +113,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return !error;
   };
 
-  const updateProfile = async (data: {name?: string, avatar_url?: string}): Promise<boolean> => {
+  const updateProfile = async (data: {name?: string, avatar_url?: string | null}): Promise<boolean> => {
     if (!user) return false;
     
-    // The profiles table stores the path, not the full URL
-    const updateData = {
-        name: data.name,
-        avatar_url: data.avatar_url,
-    };
+    const updateData = { ...data };
     
     const { error } = await supabase.from('profiles').update(updateData).eq('id', user.id);
     

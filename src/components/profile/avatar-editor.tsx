@@ -10,7 +10,7 @@ import { Camera, Trash2, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase-client";
 
 export function AvatarEditor() {
-  const { user, updateProfile, getSignedAvatarUrl } = useAuth();
+  const { user, updateProfile } = useAuth();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -34,7 +34,6 @@ export function AvatarEditor() {
         return;
       }
 
-      // We have the path, now update the profile with this path
       const success = await updateProfile({ avatar_url: uploadData.path });
       
       if (success) {
@@ -49,8 +48,8 @@ export function AvatarEditor() {
   const handleDeleteAvatar = async () => {
     if (!user) return;
     setIsUploading(true);
-    // Setting avatar_url to null or empty string in DB
-    const success = await updateProfile({ avatar_url: '' }); 
+    // Setting avatar_url to null in DB
+    const success = await updateProfile({ avatar_url: null }); 
     if (success) {
       toast({ title: "Avatar removed" });
     } else {
