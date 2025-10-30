@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User as UserIcon, Trophy, Swords } from "lucide-react";
+import { LogOut, User as UserIcon, Trophy } from "lucide-react";
 import { Logo } from "./logo";
 import { type AppUser } from "@/lib/definitions";
 import { logout } from "@/lib/auth-actions";
@@ -32,12 +32,6 @@ export function Header({ user }: { user: AppUser | null }) {
         <nav className="flex items-center space-x-4 mx-auto">
           {user && (
             <>
-              <Button variant="ghost" asChild>
-                <Link href="/">
-                  <Swords className="mr-2 h-4 w-4" />
-                  Versus
-                </Link>
-              </Button>
               <Button variant="ghost" asChild>
                 <Link href="/leaderboard">
                   <Trophy className="mr-2 h-4 w-4" />
