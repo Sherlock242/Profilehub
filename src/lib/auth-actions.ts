@@ -48,6 +48,8 @@ export async function login(data: z.infer<typeof loginSchema>): Promise<string |
         return error.message;
     }
 
+    // On successful login, revalidate the layout to ensure
+    // the new session is picked up by server components.
     revalidatePath('/', 'layout');
     return null;
 }
