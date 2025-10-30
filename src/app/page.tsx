@@ -39,26 +39,9 @@ export default function HomePage() {
   }, []);
 
   const handleVoteCasted = async () => {
-    // After a vote, just fetch two new random users.
     fetchUsers();
   };
   
-  if (isLoading) {
-    return (
-        <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-             <div className="w-full animate-fade-in-up">
-                <h1 className="text-xl md:text-5xl font-bold tracking-tighter text-center mb-2"><Skeleton className="h-12 w-3/4 mx-auto" /></h1>
-                <div className="text-muted-foreground text-center mb-8 md:mb-12 text-lg"><Skeleton className="h-6 w-1/2 mx-auto" /></div>
-                <div className="flex flex-row items-stretch justify-center gap-2 sm:gap-4 md:gap-8">
-                    <Skeleton className="flex-1 w-full max-w-[calc(50%-0.5rem)] sm:max-w-[calc(50%-1rem)] h-[170px] sm:h-[190px] md:h-[290px]" />
-                    <div className="flex items-center justify-center text-xl sm:text-2xl md:text-4xl font-bold text-muted-foreground mx-1 sm:mx-2">VS</div>
-                    <Skeleton className="flex-1 w-full max-w-[calc(50%-0.5rem)] sm:max-w-[calc(50%-1rem)] h-[170px] sm:h-[190px] md:h-[290px]" />
-                </div>
-            </div>
-        </div>
-    );
-  }
-
   if (error) {
      return (
         <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
@@ -70,12 +53,28 @@ export default function HomePage() {
      )
   }
 
-  if (users) {
+  if (!isLoading && users) {
       return (
         <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
             <VersusForm users={users} onVoteCasted={handleVoteCasted} />
         </div>
       );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
+           <div className="w-full animate-fade-in-up">
+              <h1 className="text-xl md:text-5xl font-bold tracking-tighter text-center mb-2">Who would you vote for?</h1>
+              <p className="text-muted-foreground text-center mb-8 md:mb-12 text-base">Click on a profile to cast your vote.</p>
+              <div className="flex flex-row items-stretch justify-center gap-2 sm:gap-4 md:gap-8">
+                  <Skeleton className="flex-1 w-full max-w-[calc(50%-0.5rem)] sm:max-w-[calc(50%-1rem)] h-[250px] sm:h-[290px] md:h-[350px]" />
+                  <div className="flex items-center justify-center text-xl sm:text-2xl md:text-4xl font-bold text-muted-foreground mx-1 sm:mx-2">VS</div>
+                  <Skeleton className="flex-1 w-full max-w-[calc(50%-0.5rem)] sm:max-w-[calc(50%-1rem)] h-[250px] sm:h-[290px] md:h-[350px]" />
+              </div>
+          </div>
+      </div>
+    );
   }
 
   // Fallback for non-logged-in users or initial state
