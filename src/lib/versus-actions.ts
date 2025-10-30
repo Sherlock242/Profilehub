@@ -43,7 +43,8 @@ export async function getTwoRandomUsers(): Promise<VersusResult> {
   }
 
   if (profiles.length < 2) {
-    return { error: 'Not enough users to start a comparison.' };
+    // Return no users and no error to render the "not enough users" state
+    return {};
   }
 
   // Get two random, distinct indices
@@ -103,7 +104,7 @@ export async function recordVote(votedForId: string): Promise<{ error?: string }
 
   // The trigger handles the vote count, so we just need to revalidate
   // to show the next pair of users and update the leaderboard.
-  revalidatePath('/versus');
+  revalidatePath('/');
   revalidatePath('/leaderboard');
 
   return {};
