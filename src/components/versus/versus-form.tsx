@@ -20,9 +20,9 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleVote = async (winner: ProfileForVote) => {
-    setIsLoading(winner.id);
-    const { error } = await recordVote(winner.id);
+  const handleVote = async (winnerId: string) => {
+    setIsLoading(winnerId);
+    const { error } = await recordVote(winnerId);
     
     if (error) {
         toast({
@@ -32,11 +32,7 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
         });
         setIsLoading(null);
     } else {
-        toast({
-            title: 'Vote cast!',
-            description: `+1 for ${winner.name}`,
-        });
-        // Let the parent component handle fetching the next round
+        // Let the parent component handle fetching the next round and showing the toast
         onVoteCasted();
         // We don't setIsLoading(null) here because the component will re-render with new users
     }
@@ -47,7 +43,7 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
         <Card
             key={user.id}
             className="flex-1 w-full max-w-[calc(50%-0.5rem)] sm:max-w-[calc(50%-1rem)] cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 group"
-            onClick={() => !isLoading && handleVote(user)}
+            onClick={() => !isLoading && handleVote(user.id)}
         >
             <CardContent className="p-2 sm:p-4 flex flex-col items-center justify-center space-y-2 sm:space-y-3">
                 <div className="relative">
@@ -83,7 +79,7 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
 
   return (
     <div className="w-full animate-fade-in-up">
-       <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-center mb-2">Who would you vote for?</h1>
+       <h1 className="text-3xl md:text-5xl font-bold tracking-tighter text-center mb-2">Who would you vote for?</h1>
        <p className="text-muted-foreground text-center mb-8 md:mb-12 text-lg">Click on a profile to cast your vote.</p>
         <div className="flex flex-row items-stretch justify-center gap-2 sm:gap-4 md:gap-8">
             {renderUserCard(user1)}
