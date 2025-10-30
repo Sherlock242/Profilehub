@@ -21,11 +21,11 @@ export function AvatarEditor() {
       setIsUploading(true);
       const filePath = `${user.id}/${Date.now()}_${file.name}`;
       
-      const { error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from("avatars")
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: true, // Overwrite file if it exists
+          upsert: true,
         });
 
       if (uploadError) {
@@ -34,13 +34,7 @@ export function AvatarEditor() {
         return;
       }
       
-      const { data } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
-
-      const publicUrl = data.publicUrl;
-
-      const success = await updateProfile({ avatar_url: publicUrl });
+      const success = await updateProfile({ avatar_url: uploadData.path });
       
       if (success) {
         toast({ title: "Avatar updated successfully" });
@@ -52,8 +46,6 @@ export function AvatarEditor() {
   };
 
   const handleDeleteAvatar = async () => {
-    // We will set the avatar_url to null in the profiles table
-    // You might want to also delete the file from the storage bucket
     const success = await updateProfile({ avatar_url: undefined });
     if (success) {
       toast({ title: "Avatar removed" });

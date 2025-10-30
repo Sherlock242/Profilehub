@@ -19,6 +19,21 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+async function getSignedAvatarUrl(avatarPath?: string): Promise<string | undefined> {
+  if (!avatarPath) return undefined;
+  
+  const { data, error } = await supabase
+    .storage
+    .from('avatars')
+    .createSignedUrl(avatarPath, 60 * 60); // 1 hour expiry
+
+  if (error) {
+    console.error('Error creating signed URL for avatar:', error);
+    return undefined;
+  }
+  return data.signedUrl;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,15 +50,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setLoading(true);
-        if (event === 'SIGNED_IN') {
+        if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
           await handleAuthChange(session);
         }
         if (event === 'SIGNED_OUT') {
           setUser(null);
           router.push('/login');
-        }
-        if (event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
-          await handleAuthChange(session);
         }
         setLoading(false);
       }
@@ -63,11 +75,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
       
       if(profile) {
+        const signedUrl = await getSignedAvatarUrl(profile.avatar_url);
         setUser({
           id: profile.id,
           name: profile.name,
           email: session.user.email!,
-          avatarUrl: profile.avatar_url,
+          avatarUrl: signedUrl,
         });
       }
     } else {
@@ -93,7 +106,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: {
         data: {
           name,
-          // Note: Supabase trigger will use this to create profile
         },
       },
     });
@@ -103,20 +115,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateProfile = async (data: {name?: string, avatar_url?: string}): Promise<boolean> => {
     if (!user) return false;
     
-    const { error } = await supabase.from('profiles').update(data).eq('id', user.id);
+    // The profiles table stores the path, not the full URL
+    const updateData = {
+        name: data.name,
+        avatar_url: data.avatar_url,
+    };
+    
+    const { error } = await supabase.from('profiles').update(updateData).eq('id', user.id);
     
     if (!error) {
-      // Manually update the user state to avoid waiting for the auth listener
-      setUser(prevUser => {
-        if (!prevUser) return null;
-        // Add a cache-busting query param to the avatar URL
-        const newAvatarUrl = data.avatar_url ? `${data.avatar_url}?t=${new Date().getTime()}` : prevUser.avatarUrl;
-        return {
-          ...prevUser,
-          name: data.name ?? prevUser.name,
-          avatarUrl: newAvatarUrl,
-        };
-      });
+      // Refresh auth state to get new signed url
+      await handleAuthChange(await supabase.auth.getSession().then(res => res.data.session));
       return true;
     }
     return false;
