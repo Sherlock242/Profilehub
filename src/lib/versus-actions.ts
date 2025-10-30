@@ -35,18 +35,20 @@ export async function getInitialUsers(): Promise<VersusResult> {
     return {};
   }
 
-  // Fetch all profiles
+  // Fetch all profiles other than the current user
   const { data: profiles, error: profilesError } = await supabase
     .from('profiles')
-    .select('id, name, avatar_url');
+    .select('id, name, avatar_url')
+    .not('id', 'eq', user.id);
+
 
   if (profilesError) {
     return { error: 'Could not fetch users.' };
   }
 
-  // We need at least 2 users in the system to start a vote.
+  // We need at least 2 other users in the system to start a vote.
   if (profiles.length < 2) {
-    return { error: "We need at least two users in the system to start a vote. Invite some friends!" };
+    return { error: "There are not enough other users to start a vote. Invite some friends!" };
   }
 
   // Get two random, distinct indices
@@ -157,8 +159,7 @@ export async function getLeaderboard(): Promise<{
   const { data, error } = await supabase
     .from('profiles')
     .select('id, name, avatar_url, votes')
-    .order('votes', { ascending: false })
-    .limit(10); // Get top 10
+    .order('votes', { ascending: false });
 
   if (error) {
     return { error: 'Could not fetch leaderboard.' };

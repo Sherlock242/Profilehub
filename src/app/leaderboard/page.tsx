@@ -41,7 +41,7 @@ export default async function LeaderboardPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Top 10 Voters</CardTitle>
+          <CardTitle>Top Voters</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
