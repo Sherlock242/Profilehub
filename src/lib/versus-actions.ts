@@ -17,8 +17,8 @@ async function getPublicAvatarUrl(
 ): Promise<string | undefined> {
   if (!path) return undefined;
   const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-  // Add a timestamp to bust the cache
-  return data?.publicUrl ? `${data.publicUrl}?t=${new Date().getTime()}` : undefined;
+  // No longer bust the cache with a timestamp
+  return data?.publicUrl;
 }
 
 // Renamed from getTwoRandomUsers

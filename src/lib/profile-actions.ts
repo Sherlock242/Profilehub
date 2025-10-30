@@ -104,8 +104,11 @@ export async function updateAvatar(payload: UpdateAvatarPayload): Promise<FormSt
         await supabase.storage.from('avatars').remove([oldPath]);
     }
     
+    // Revalidate paths to reflect the new avatar everywhere
     revalidatePath('/profile');
-    revalidatePath('/', 'layout'); // Revalidate root layout to update header
+    revalidatePath('/', 'layout'); 
+    revalidatePath('/');
+    revalidatePath('/leaderboard');
     return {};
 }
 
@@ -145,7 +148,10 @@ export async function deleteAvatar(): Promise<FormState> {
         await supabase.storage.from('avatars').remove([oldPath]);
     }
 
+    // Revalidate paths to reflect the avatar removal everywhere
     revalidatePath('/profile');
-    revalidatePath('/', 'layout'); // Revalidate root layout to update header
+    revalidatePath('/', 'layout');
+    revalidatePath('/');
+    revalidatePath('/leaderboard');
     return {};
 }

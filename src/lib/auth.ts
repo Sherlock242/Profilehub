@@ -35,7 +35,7 @@ export async function getUser(): Promise<AppUser | null> {
       .getPublicUrl(profile.avatar_url);
     
     if (publicUrlData) {
-        avatarUrl = `${publicUrlData.publicUrl}?t=${new Date().getTime()}`;
+        avatarUrl = publicUrlData.publicUrl;
     }
   }
   
