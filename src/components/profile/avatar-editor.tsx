@@ -26,25 +26,40 @@ export function AvatarEditor({ user }: { user: AppUser }) {
     }
   };
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleUpload = async () => {
     if (!selectedFile) return;
 
     setIsUploading(true);
     
-    const formData = new FormData();
-    formData.append("avatar", selectedFile);
-    
-    const { error } = await updateAvatar(formData);
-    
-    setIsUploading(false);
+    try {
+      const base64String = await fileToBase64(selectedFile);
+      const { error } = await updateAvatar({
+        file: base64String,
+        fileType: selectedFile.type,
+        fileName: selectedFile.name,
+      });
 
-    if (error) {
-      toast({ variant: "destructive", title: "Failed to upload avatar", description: error });
-    } else {
-      toast({ title: "Avatar updated successfully" });
-      setSelectedFile(null);
-      setPreviewUrl(null);
-      router.refresh();
+      if (error) {
+        toast({ variant: "destructive", title: "Failed to upload avatar", description: error });
+      } else {
+        toast({ title: "Avatar updated successfully" });
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        router.refresh();
+      }
+    } catch (e: any) {
+        toast({ variant: "destructive", title: "Failed to process file", description: e.message });
+    } finally {
+        setIsUploading(false);
     }
   };
 
