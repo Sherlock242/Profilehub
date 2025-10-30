@@ -15,11 +15,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { login } from "@/lib/auth-actions";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -27,7 +27,6 @@ const formSchema = z.object({
 });
 
 export default function LoginPage() {
-  const { login } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -42,21 +41,23 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const success = await login(values.email, values.password);
+    const error = await login(values);
     setIsLoading(false);
 
-    if (success) {
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: error,
+      });
+    } else {
       toast({
         title: "Login successful!",
         description: "Welcome back.",
       });
       router.push("/profile");
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Login failed",
-        description: "Invalid email or password.",
-      });
+      // Use router.refresh() to re-run the root layout and update header state
+      router.refresh();
     }
   }
 

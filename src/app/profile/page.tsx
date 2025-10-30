@@ -1,49 +1,16 @@
-"use client";
-
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/auth-context";
+import { redirect } from 'next/navigation';
+import { getUser } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AvatarEditor } from "@/components/profile/avatar-editor";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { PasswordForm } from "@/components/profile/password-form";
 
-export default function ProfilePage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
+export default async function ProfilePage() {
+  const user = await getUser();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/login");
-    }
-  }, [user, loading, router]);
-
-  if (loading || !user) {
-    return (
-      <div className="container max-w-4xl py-8">
-        <div className="space-y-6">
-          <Skeleton className="h-10 w-48" />
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-8 w-32" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <Skeleton className="h-24 w-24 rounded-full" />
-                <div className="space-y-2">
-                  <Skeleton className="h-6 w-40" />
-                  <Skeleton className="h-6 w-24" />
-                </div>
-              </div>
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-24" />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+  if (!user) {
+    redirect("/login");
   }
 
   return (
@@ -60,8 +27,8 @@ export default function ProfilePage() {
               <CardTitle>Profile</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <AvatarEditor />
-              <ProfileForm />
+              <AvatarEditor user={user} />
+              <ProfileForm user={user} />
             </CardContent>
           </Card>
         </TabsContent>

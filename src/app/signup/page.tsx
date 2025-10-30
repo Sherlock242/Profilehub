@@ -15,11 +15,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { signup } from "@/lib/auth-actions";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -30,7 +30,6 @@ const formSchema = z.object({
 });
 
 export default function SignupPage() {
-  const { register } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -46,21 +45,22 @@ export default function SignupPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const success = await register(values.name, values.email, values.password);
+    const error = await signup(values);
     setIsLoading(false);
 
-    if (success) {
-      toast({
-        title: "Registration successful!",
-        description: "Your account has been created.",
-      });
-      router.push("/profile");
-    } else {
+    if (error) {
       toast({
         variant: "destructive",
         title: "Registration failed",
-        description: "An account with this email already exists.",
+        description: error,
       });
+    } else {
+      toast({
+        title: "Registration successful!",
+        description: "Your account has been created. Please log in.",
+      });
+      router.push("/login");
+      router.refresh();
     }
   }
 

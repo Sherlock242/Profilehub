@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -14,19 +13,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { AppUser } from "@/lib/definitions";
+import { updateProfile } from "@/lib/profile-actions";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email(),
 });
 
-export function ProfileForm() {
-  const { user, updateProfile } = useAuth();
+export function ProfileForm({ user }: { user: AppUser }) {
   const { toast } = useToast();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -37,24 +38,16 @@ export function ProfileForm() {
     },
   });
 
-  useEffect(() => {
-    if (user) {
-      form.reset({
-        name: user.name || "",
-        email: user.email || "",
-      });
-    }
-  }, [user, form]);
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const success = await updateProfile({ name: values.name });
+    const { error } = await updateProfile({ name: values.name });
     setIsLoading(false);
 
-    if (success) {
-      toast({ title: "Profile updated successfully!" });
+    if (error) {
+      toast({ variant: "destructive", title: "Failed to update profile.", description: error });
     } else {
-      toast({ variant: "destructive", title: "Failed to update profile." });
+      toast({ title: "Profile updated successfully!" });
+      router.refresh();
     }
   }
 

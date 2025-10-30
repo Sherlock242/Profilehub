@@ -1,17 +1,18 @@
 
 "use client";
 
-import { ChangeEvent, useRef, useState, useEffect } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Camera, Trash2, Loader2, Upload } from "lucide-react";
-import { supabase } from "@/lib/supabase-client";
+import { AppUser } from "@/lib/definitions";
+import { updateAvatar, deleteAvatar } from "@/lib/profile-actions";
+import { useRouter } from "next/navigation";
 
-export function AvatarEditor() {
-  const { user, updateProfile } = useAuth();
+export function AvatarEditor({ user }: { user: AppUser }) {
   const { toast } = useToast();
+  const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -26,63 +27,42 @@ export function AvatarEditor() {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !user) return;
+    if (!selectedFile) return;
 
     setIsUploading(true);
-    const filePath = `${user.id}/${Date.now()}_${selectedFile.name}`;
     
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(filePath, selectedFile, {
-        cacheControl: '3600',
-        upsert: false, // Use false to avoid overwriting; we have a unique path
-      });
+    const formData = new FormData();
+    formData.append("avatar", selectedFile);
+    
+    const { error } = await updateAvatar(formData);
+    
+    setIsUploading(false);
 
-    if (uploadError || !uploadData) {
-      toast({ variant: "destructive", title: "Failed to upload avatar", description: uploadError?.message || "An unknown error occurred." });
-      setIsUploading(false);
-      return;
-    }
-    
-    // IMPORTANT: Store only the path, not the full public URL
-    const success = await updateProfile({ avatar_url: uploadData.path });
-    
-    if (success) {
+    if (error) {
+      toast({ variant: "destructive", title: "Failed to upload avatar", description: error });
+    } else {
       toast({ title: "Avatar updated successfully" });
       setSelectedFile(null);
       setPreviewUrl(null);
-    } else {
-      toast({ variant: "destructive", title: "Failed to update profile with new avatar." });
+      router.refresh();
     }
-    setIsUploading(false);
   };
 
   const handleDeleteAvatar = async () => {
-    if (!user) return;
     setIsUploading(true);
-    // Set avatar_url to null in the database
-    const success = await updateProfile({ avatar_url: null }); 
-    if (success) {
+    const { error } = await deleteAvatar();
+    setIsUploading(false);
+    
+    if (error) {
+       toast({ variant: "destructive", title: "Failed to remove avatar", description: error });
+    } else {
       toast({ title: "Avatar removed" });
       setPreviewUrl(null);
       setSelectedFile(null);
-    } else {
-      toast({ variant: "destructive", title: "Failed to remove avatar" });
+      router.refresh();
     }
-    setIsUploading(false);
   };
   
-  useEffect(() => {
-    // Clean up the object URL to avoid memory leaks
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
-
-  if (!user) return null;
-
   const displayUrl = previewUrl || user.avatarUrl;
 
   return (

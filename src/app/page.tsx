@@ -1,11 +1,10 @@
-'use client';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/auth-context';
+import { getUser } from '@/lib/auth';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
-export default function Home() {
-  const { user } = useAuth();
+export default async function Home() {
+  const user = await getUser();
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] p-4 text-center animate-fade-in">
       <section className="max-w-3xl">

@@ -1,19 +1,21 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { AuthProvider } from '@/contexts/auth-context';
 import { Header } from '@/components/header';
 import { Toaster } from '@/components/ui/toaster';
+import { getUser } from '@/lib/auth';
 
 export const metadata: Metadata = {
   title: 'Profile Hub',
   description: 'Manage your user profile with ease.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getUser();
+
   return (
     <html lang="en" className="h-full dark">
       <head>
@@ -25,13 +27,11 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased h-full overflow-x-hidden">
-        <AuthProvider>
           <div className="flex flex-col min-h-screen">
-            <Header />
+            <Header user={user} />
             <main className="flex-1">{children}</main>
           </div>
           <Toaster />
-        </AuthProvider>
       </body>
     </html>
   );

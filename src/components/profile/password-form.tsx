@@ -13,12 +13,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
+import { changePassword } from "@/lib/profile-actions";
 
 const formSchema = z
   .object({
@@ -33,7 +33,6 @@ const formSchema = z
   });
 
 export function PasswordForm() {
-  const { changePassword } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -47,18 +46,18 @@ export function PasswordForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const success = await changePassword(values.newPassword);
+    const { error } = await changePassword(values.newPassword);
     setIsLoading(false);
 
-    if (success) {
-      toast({ title: "Password changed successfully!" });
-      form.reset();
-    } else {
+    if (error) {
       toast({
         variant: "destructive",
         title: "Failed to change password",
-        description: "There was an error updating your password.",
+        description: error,
       });
+    } else {
+      toast({ title: "Password changed successfully!" });
+      form.reset();
     }
   }
 
