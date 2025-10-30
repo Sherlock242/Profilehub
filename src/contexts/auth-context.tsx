@@ -27,16 +27,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        await handleAuthChange(session);
-      } else {
-        setLoading(false);
-      }
+      await handleAuthChange(session);
+      setLoading(false);
     };
     getSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        setLoading(true);
         if (event === 'SIGNED_IN') {
           await handleAuthChange(session);
         }
@@ -44,9 +42,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(null);
           router.push('/login');
         }
-        if (event === 'USER_UPDATED') {
+        if (event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
           await handleAuthChange(session);
         }
+        setLoading(false);
       }
     );
 
@@ -56,7 +55,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [router]);
 
   const handleAuthChange = async (session: Session | null) => {
-    setLoading(true);
     if (session?.user) {
       const { data: profile } = await supabase
         .from('profiles')
@@ -72,8 +70,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           avatarUrl: profile.avatar_url,
         });
       }
+    } else {
+      setUser(null);
     }
-    setLoading(false);
   };
 
   const login = async (email: string, pass: string): Promise<boolean> => {
@@ -94,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: {
         data: {
           name,
+          // Note: Supabase trigger will use this to create profile
         },
       },
     });
@@ -106,8 +106,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.from('profiles').update(data).eq('id', user.id);
     
     if (!error) {
-      const { data: { session } } = await supabase.auth.getSession();
-      await handleAuthChange(session);
+      // Manually update the user state to avoid waiting for the auth listener
+      setUser(prevUser => {
+        if (!prevUser) return null;
+        // Add a cache-busting query param to the avatar URL
+        const newAvatarUrl = data.avatar_url ? `${data.avatar_url}?t=${new Date().getTime()}` : prevUser.avatarUrl;
+        return {
+          ...prevUser,
+          name: data.name ?? prevUser.name,
+          avatarUrl: newAvatarUrl,
+        };
+      });
       return true;
     }
     return false;
@@ -123,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

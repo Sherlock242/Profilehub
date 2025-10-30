@@ -1,3 +1,4 @@
+
 "use client";
 
 import { ChangeEvent, useRef, useState } from "react";
@@ -18,14 +19,17 @@ export function AvatarEditor() {
     const file = event.target.files?.[0];
     if (file && user) {
       setIsUploading(true);
-      const filePath = `${user.id}/${Date.now()}`;
+      const filePath = `${user.id}/${Date.now()}_${file.name}`;
       
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true, // Overwrite file if it exists
+        });
 
       if (uploadError) {
-        toast({ variant: "destructive", title: "Failed to upload avatar" });
+        toast({ variant: "destructive", title: "Failed to upload avatar", description: uploadError.message });
         setIsUploading(false);
         return;
       }
@@ -34,12 +38,14 @@ export function AvatarEditor() {
         .from("avatars")
         .getPublicUrl(filePath);
 
-      const success = await updateProfile({ avatar_url: data.publicUrl });
+      const publicUrl = data.publicUrl;
+
+      const success = await updateProfile({ avatar_url: publicUrl });
       
       if (success) {
         toast({ title: "Avatar updated successfully" });
       } else {
-        toast({ variant: "destructive", title: "Failed to update avatar" });
+        toast({ variant: "destructive", title: "Failed to update profile with new avatar." });
       }
       setIsUploading(false);
     }
@@ -62,7 +68,7 @@ export function AvatarEditor() {
     <div className="flex items-center gap-6">
       <div className="relative">
         <Avatar className="h-24 w-24 border-2 border-primary/20">
-          <AvatarImage src={user.avatarUrl} alt={user.name} />
+          <AvatarImage key={user.avatarUrl} src={user.avatarUrl} alt={user.name} />
           <AvatarFallback className="text-3xl">
             {user.name.charAt(0).toUpperCase()}
           </AvatarFallback>
