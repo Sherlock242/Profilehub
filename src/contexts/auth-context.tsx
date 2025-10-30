@@ -15,29 +15,30 @@ type AuthContextType = {
   register: (name: string, email: string, pass: string) => Promise<boolean>;
   updateProfile: (data: {name?: string, avatar_url?: string}) => Promise<boolean>;
   changePassword: (newPass: string) => Promise<boolean>;
+  getSignedAvatarUrl: (avatarPath: string) => Promise<string | undefined>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-async function getSignedAvatarUrl(avatarPath?: string): Promise<string | undefined> {
-  if (!avatarPath) return undefined;
-  
-  const { data, error } = await supabase
-    .storage
-    .from('avatars')
-    .createSignedUrl(avatarPath, 60 * 60); // 1 hour expiry
-
-  if (error) {
-    console.error('Error creating signed URL for avatar:', error);
-    return undefined;
-  }
-  return data.signedUrl;
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  const getSignedAvatarUrl = async (avatarPath: string): Promise<string | undefined> => {
+    if (!avatarPath) return undefined;
+    
+    const { data, error } = await supabase
+      .storage
+      .from('avatars')
+      .createSignedUrl(avatarPath, 60 * 60); // 1 hour expiry
+
+    if (error) {
+      console.error('Error creating signed URL for avatar:', error);
+      return undefined;
+    }
+    return data.signedUrl;
+  }
 
   useEffect(() => {
     const getSession = async () => {
@@ -75,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
       
       if(profile) {
-        const signedUrl = await getSignedAvatarUrl(profile.avatar_url);
+        const signedUrl = profile.avatar_url ? await getSignedAvatarUrl(profile.avatar_url) : undefined;
         setUser({
           id: profile.id,
           name: profile.name,
@@ -125,9 +126,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     if (!error) {
       // Refresh auth state to get new signed url
-      await handleAuthChange(await supabase.auth.getSession().then(res => res.data.session));
+      const { data: { session } } = await supabase.auth.getSession();
+      await handleAuthChange(session);
       return true;
     }
+    console.error("Error updating profile:", error);
     return false;
   };
 
@@ -137,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return !error;
   };
   
-  const value = { user, loading, login, logout, register, updateProfile, changePassword };
+  const value = { user, loading, login, logout, register, updateProfile, changePassword, getSignedAvatarUrl };
 
   return (
     <AuthContext.Provider value={value}>
