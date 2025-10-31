@@ -88,34 +88,16 @@ export async function recordVote({ votedForId, votedAgainstId }: { votedForId: s
       return { error: "You cannot vote for yourself." };
   }
 
-  // 1. Get the current votes for the user being voted for
-  const { data: profile, error: fetchError } = await supabase
-    .from('profiles')
-    .select('votes')
-    .eq('id', votedForId)
-    .single();
+  // Use an RPC call to a secure database function to increment the vote
+  const { error } = await supabase.rpc('increment_vote', { user_id: votedForId });
 
-  if (fetchError || !profile) {
-    console.error('Error fetching profile for vote:', fetchError);
-    return { error: 'Could not find the user to vote for.' };
-  }
-
-  // 2. Increment the vote count
-  const newVoteCount = profile.votes + 1;
-
-  // 3. Update the profile with the new vote count
-  const { error: updateError } = await supabase
-    .from('profiles')
-    .update({ votes: newVoteCount })
-    .eq('id', votedForId);
-
-  if (updateError) {
-    console.error("Vote recording error:", updateError.message);
+  if (error) {
+    console.error("Vote recording error:", error.message);
     return { error: 'An error occurred while casting your vote.' };
   }
 
-  // Revalidate server-rendered pages that show vote counts.
-  // The client-side refetch is handled on the page itself.
+  // Revalidate paths to show updated vote counts
+  revalidatePath('/');
   revalidatePath('/leaderboard');
   revalidatePath(`/profile/${votedForId}`);
 

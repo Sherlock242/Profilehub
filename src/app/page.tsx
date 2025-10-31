@@ -52,8 +52,6 @@ export default function HomePage() {
   const handleVoteCasted = () => {
     // Force a hard refresh of Server Components to get new data
     router.refresh();
-    // Fetch new users for the next round
-    fetchUsers();
   };
   
   if (error) {
