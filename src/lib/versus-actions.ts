@@ -88,20 +88,10 @@ export async function recordVote({ votedForId, votedAgainstId }: { votedForId: s
       return { error: "You cannot vote for yourself." };
   }
 
-  const { data: profile, error: fetchError } = await supabase
-    .from('profiles')
-    .select('votes')
-    .eq('id', votedForId)
-    .single();
-
-  if (fetchError || !profile) {
-      return { error: 'Could not find the user to vote for.' };
-  }
-
-  const { error } = await supabase
-    .from('profiles')
-    .update({ votes: profile.votes + 1 })
-    .eq('id', votedForId);
+  const { error } = await supabase.rpc('increment_vote', {
+    user_id: votedForId,
+    increment_by: 1,
+  });
 
 
   if (error) {
