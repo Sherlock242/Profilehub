@@ -3,8 +3,8 @@
 
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
-import { revalidatePath } from 'next/cache';
 import { type ProfileForVote, type LeaderboardEntry } from './definitions';
+import { revalidatePath } from 'next/cache';
 
 type VersusResult = {
   users?: [ProfileForVote, ProfileForVote];
@@ -114,7 +114,8 @@ export async function recordVote({ votedForId, votedAgainstId }: { votedForId: s
     return { error: 'An error occurred while casting your vote.' };
   }
 
-  revalidatePath('/');
+  // Revalidate server-rendered pages that show vote counts.
+  // The client-side refetch is handled on the page itself.
   revalidatePath('/leaderboard');
   revalidatePath(`/profile/${votedForId}`);
 

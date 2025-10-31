@@ -8,6 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { VersusForm } from '@/components/versus/versus-form';
 import { type ProfileForVote } from '@/lib/definitions';
 import { VersusFormSkeleton } from '@/components/versus/versus-form-skeleton';
+import { useRouter } from 'next/navigation';
 
 // Force this page to be dynamic to prevent caching of the random users
 export const dynamic = 'force-dynamic';
@@ -18,6 +19,8 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   // Add a key to force re-mounting of the VersusForm
   const [versusKey, setVersusKey] = useState(Date.now());
+  const router = useRouter();
+
 
   const fetchUsers = () => {
     setIsLoading(true);
@@ -46,7 +49,10 @@ export default function HomePage() {
     fetchUsers();
   }, []);
 
-  const handleVoteCasted = async () => {
+  const handleVoteCasted = () => {
+    // Force a hard refresh of Server Components to get new data
+    router.refresh();
+    // Fetch new users for the next round
     fetchUsers();
   };
   
