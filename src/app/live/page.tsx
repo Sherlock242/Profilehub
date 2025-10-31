@@ -22,24 +22,10 @@ export default function LiveFeedPage() {
   const [notifications, setNotifications] = useState<VoteNotification[]>([]);
 
   useEffect(() => {
-    // We need to get the user on the client to subscribe to the correct channel
-    const fetchUser = async () => {
-        // This is a client-side utility, but it's calling a server action.
-        // It's a bit of a workaround to get the user in a client component.
-        // A better approach might be a dedicated client-side auth context.
-        const response = await fetch('/api/auth/user');
-        if (response.ok) {
-            const userData = await response.json();
-            setUser(userData);
-        }
-    };
-    
-    // A temporary API route to get user data on the client might be needed.
-    // For now, let's assume we can get the user. A proper implementation
-    // would involve an API route or a shared auth provider.
-    // Since we don't have that, let's use a trick. We'll make `getUser` callable
-    // from the client, which is not ideal but works for this demo.
-    // Let's pivot: we'll create the supabase client here and get the user directly.
+    // On visiting the live page, mark new votes as seen
+    sessionStorage.setItem('hasNewVotes', 'false');
+    window.dispatchEvent(new Event('storage')); // Notify header to update
+
     const initializePage = async () => {
         const supabase = createClient();
         const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -80,8 +66,12 @@ export default function LiveFeedPage() {
           ...response.payload,
         };
         setNotifications((current) => [newNotification, ...current]);
+        
+        // Indicate that there is a new vote
+        sessionStorage.setItem('hasNewVotes', 'true');
+        window.dispatchEvent(new Event('storage')); // Notify header to update
 
-        // Remove the notification after 10 minutes
+        // Remove the notification from view after 10 minutes
         setTimeout(() => {
           setNotifications((current) =>
             current.filter((n) => n.id !== newNotification.id)

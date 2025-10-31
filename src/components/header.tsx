@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Link from "next/link";
@@ -23,14 +24,34 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useEffect, useState } from "react";
 
 export function Header({ user }: { user: AppUser | null }) {
   const router = useRouter();
+  const [hasNewVotes, setHasNewVotes] = useState(false);
   
   const handleLogout = async () => {
     await logout();
     router.push('/login');
   };
+
+  useEffect(() => {
+    const checkNewVotes = () => {
+      const newVotes = sessionStorage.getItem('hasNewVotes') === 'true';
+      setHasNewVotes(newVotes);
+    };
+
+    // Check on initial mount
+    checkNewVotes();
+
+    // Listen for storage changes from other tabs/windows
+    window.addEventListener('storage', checkNewVotes);
+
+    // Cleanup listener
+    return () => {
+      window.removeEventListener('storage', checkNewVotes);
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -42,8 +63,14 @@ export function Header({ user }: { user: AppUser | null }) {
                 <TooltipProvider>
                    <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="ghost" asChild size="icon">
+                      <Button variant="ghost" asChild size="icon" className="relative">
                         <Link href="/live">
+                          {hasNewVotes && (
+                            <span className="absolute top-1 right-1 flex h-3 w-3">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                            </span>
+                          )}
                           <RadioTower className="h-5 w-5" />
                           <span className="sr-only">Live Feed</span>
                         </Link>
