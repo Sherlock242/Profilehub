@@ -131,7 +131,7 @@ export function AvatarEditor({ user }: { user: AppUser }) {
         ref={fileInputRef}
         onChange={handleFileChange}
         className="hidden"
-        accept="image/png, image/jpeg"
+        accept="image/png, image/jpeg, image/gif, image/webp"
       />
     </div>
   );
