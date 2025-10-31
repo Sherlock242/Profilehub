@@ -41,7 +41,7 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
     return (
         <Card
             key={user.id}
-            className="flex-1 w-full max-w-[calc(50%-0.5rem)] sm:max-w-[calc(50%-1rem)] cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 group"
+            className="flex-1 w-0 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 group"
             onClick={() => !isLoading && handleVote(user)}
         >
             <CardContent className="p-2 sm:p-4 flex flex-col items-center justify-center space-y-2 sm:space-y-3 h-full">
