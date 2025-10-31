@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getUser } from "@/lib/auth";
 import { getLeaderboard } from "@/lib/versus-actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,15 +61,15 @@ export default async function LeaderboardPage() {
                       {entry.rank}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-4">
+                      <Link href={`/profile/${entry.id}`} className="flex items-center gap-4 group hover:cursor-pointer">
                         <Avatar>
                           <AvatarImage src={entry.avatarUrl} />
                           <AvatarFallback>
                             {entry.name?.charAt(0) || <UserCircle />}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="font-medium">{entry.name}</span>
-                      </div>
+                        <span className="font-medium group-hover:underline">{entry.name}</span>
+                      </Link>
                     </TableCell>
                     <TableCell className="text-right font-mono text-lg font-bold">
                       {entry.votes}
