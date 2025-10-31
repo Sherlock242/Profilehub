@@ -155,3 +155,28 @@ export async function deleteAvatar(): Promise<FormState> {
     revalidatePath('/leaderboard');
     return {};
 }
+
+export async function deleteAccount(): Promise<{ error?: string }> {
+  const cookieStore = cookies();
+  // We are using the service role client here to bypass RLS for user deletion.
+  const supabase = createClient(cookieStore);
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { error: 'Could not authenticate user.' };
+  }
+
+  const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id);
+  
+  if (deleteError) {
+    return { error: `Failed to delete account: ${deleteError.message}` };
+  }
+  
+  // Sign the user out on the client by clearing the cookies.
+  cookieStore.getAll().forEach(cookie => {
+    cookieStore.delete(cookie.name);
+  });
+
+  return {};
+}

@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AvatarEditor } from "@/components/profile/avatar-editor";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { PasswordForm } from "@/components/profile/password-form";
+import { DeleteAccountForm } from '@/components/profile/delete-account-form';
 
 export default async function ProfilePage() {
   const user = await getUser();
@@ -43,6 +44,18 @@ export default async function ProfilePage() {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      <div className="mt-8">
+        <Card className="border-destructive">
+            <CardHeader>
+                <CardTitle>Danger Zone</CardTitle>
+                <CardDescription>These actions are permanent and cannot be undone.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <DeleteAccountForm />
+            </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
