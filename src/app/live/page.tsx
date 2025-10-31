@@ -15,7 +15,7 @@ type VoteNotification = {
     timestamp: number;
 };
 
-const NOTIFICATION_LIFETIME = 5 * 60 * 1000; // 5 minutes in milliseconds
+const NOTIFICATION_LIFETIME = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 export default function LiveFeedPage() {
     const [user, setUser] = useState<AppUser | null>(null);
@@ -154,7 +154,7 @@ export default function LiveFeedPage() {
              <Alert className="mb-8">
                 <AlertTitle>Listening for Votes!</AlertTitle>
                 <AlertDescription>
-                    This screen will update in real-time as other users vote for you. Notifications disappear after 5 minutes.
+                    This screen will update in real-time as other users vote for you. Notifications disappear after 10 minutes.
                 </AlertDescription>
             </Alert>
             
