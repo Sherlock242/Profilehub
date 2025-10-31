@@ -88,14 +88,29 @@ export async function recordVote({ votedForId, votedAgainstId }: { votedForId: s
       return { error: "You cannot vote for yourself." };
   }
 
-  const { error } = await supabase.rpc('increment_vote', {
-    user_id: votedForId,
-    increment_by: 1,
-  });
+  // 1. Get the current votes for the user being voted for
+  const { data: profile, error: fetchError } = await supabase
+    .from('profiles')
+    .select('votes')
+    .eq('id', votedForId)
+    .single();
 
+  if (fetchError || !profile) {
+    console.error('Error fetching profile for vote:', fetchError);
+    return { error: 'Could not find the user to vote for.' };
+  }
 
-  if (error) {
-    console.error("Vote recording error:", error.message);
+  // 2. Increment the vote count
+  const newVoteCount = profile.votes + 1;
+
+  // 3. Update the profile with the new vote count
+  const { error: updateError } = await supabase
+    .from('profiles')
+    .update({ votes: newVoteCount })
+    .eq('id', votedForId);
+
+  if (updateError) {
+    console.error("Vote recording error:", updateError.message);
     return { error: 'An error occurred while casting your vote.' };
   }
 
