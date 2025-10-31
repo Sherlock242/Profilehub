@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,11 +9,15 @@ import { VersusForm } from '@/components/versus/versus-form';
 import { type ProfileForVote } from '@/lib/definitions';
 import { VersusFormSkeleton } from '@/components/versus/versus-form-skeleton';
 
+// Force this page to be dynamic to prevent caching of the random users
+export const dynamic = 'force-dynamic';
 
 export default function HomePage() {
   const [users, setUsers] = useState<[ProfileForVote, ProfileForVote] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Add a key to force re-mounting of the VersusForm
+  const [versusKey, setVersusKey] = useState(Date.now());
 
   const fetchUsers = () => {
     setIsLoading(true);
@@ -24,6 +29,8 @@ export default function HomePage() {
         } else if (users) {
           setUsers(users);
           setError(null);
+          // Update the key to reset the form
+          setVersusKey(Date.now()); 
         } else {
           // No error, but no users (logged out)
           setUsers(null);
@@ -58,7 +65,7 @@ export default function HomePage() {
   if (!isLoading && users) {
       return (
         <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-            <VersusForm users={users} onVoteCasted={handleVoteCasted} />
+            <VersusForm key={versusKey} users={users} onVoteCasted={handleVoteCasted} />
         </div>
       );
   }
