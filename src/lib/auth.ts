@@ -14,7 +14,7 @@ export async function getUser(): Promise<AppUser | null> {
 
   // Fetch profile and unread notifications in parallel
   const [profileRes, notificationRes] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase.from("profiles").select("id, name, avatar_url").eq("id", user.id).single(),
     supabase.from("notifications").select("id", { count: 'exact', head: true }).eq("user_id", user.id).eq("is_read", false)
   ]);
 

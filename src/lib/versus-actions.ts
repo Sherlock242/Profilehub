@@ -167,7 +167,8 @@ export async function markNotificationsAsRead(): Promise<{ error?: string }> {
         return { error: error.message };
     }
 
-    revalidatePath('/', 'layout'); // Important to re-run the layout and get new user state
+    // Revalidate the root layout to re-run `getUser` and update the dot
+    revalidatePath('/', 'layout');
     return {};
 }
 
@@ -178,6 +179,7 @@ export async function getRecentNotifications(): Promise<{ notifications?: VoteNo
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: "Not authenticated" };
 
+    // Fetch notifications from the last 10 minutes
     const tenMinutesAgo = subMinutes(new Date(), 10).toISOString();
 
     const { data, error } = await supabase

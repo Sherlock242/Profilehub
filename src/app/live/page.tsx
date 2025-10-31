@@ -3,30 +3,24 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
-import { type AppUser } from '@/lib/definitions';
+import { type VoteNotification } from '@/lib/definitions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { RadioTower, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
 import { getRecentNotifications, markNotificationsAsRead } from '@/lib/versus-actions';
 
-type VoteNotification = {
-  id: string;
-  message: string;
-  timestamp: string;
-};
-
 export default function LiveFeedPage() {
   const [notifications, setNotifications] = useState<VoteNotification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Mark notifications as read and notify header to update
+    // 1. Mark all existing notifications as read and notify the header to update
     markNotificationsAsRead().then(() => {
-        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new CustomEvent('notifications-read'));
     });
     
-    // 2. Fetch initial recent notifications
+    // 2. Fetch initial recent notifications from the last 10 minutes
     getRecentNotifications().then(({ notifications, error }) => {
         if (notifications) {
             setNotifications(notifications);
@@ -34,13 +28,13 @@ export default function LiveFeedPage() {
         setIsLoading(false);
     });
 
-    // 3. Set up real-time listener for new notifications
+    // 3. Set up a real-time listener for new vote notifications
     const supabase = createClient();
     const channel = supabase
       .channel('realtime-notifications')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications' },
+        { event: 'INSERT', schema: 'public', table: 'notifications', filter: 'event_type=eq.new_vote' },
         (payload) => {
            const newNotification = payload.new as { id: number; actor_name: string; created_at: string };
            const newVote: VoteNotification = {
@@ -49,11 +43,13 @@ export default function LiveFeedPage() {
                timestamp: newNotification.created_at,
            };
            
-           // Add to view and notify header
+           // Add the new vote to the top of the list
            setNotifications((current) => [newVote, ...current]);
-           window.dispatchEvent(new Event('storage'));
+           
+           // Notify the header to show the dot again
+           window.dispatchEvent(new CustomEvent('notifications-read'));
 
-           // Remove from view after 10 minutes
+           // Automatically remove the notification from the view after 10 minutes
            setTimeout(() => {
                setNotifications((current) => current.filter((n) => n.id !== newVote.id));
            }, 10 * 60 * 1000); // 10 minutes
@@ -77,7 +73,7 @@ export default function LiveFeedPage() {
       <Alert>
         <AlertTitle>Listening for Votes!</AlertTitle>
         <AlertDescription>
-          This screen updates in real-time as other users vote for you. Notifications disappear after 10 minutes.
+          This screen updates in real-time as other users vote for you. Notifications shown here are from the last 10 minutes.
         </AlertDescription>
       </Alert>
 
@@ -99,7 +95,7 @@ export default function LiveFeedPage() {
         </div>
       ) : (
         <div className="mt-8 text-center text-muted-foreground">
-            <p>{isLoading ? "Loading votes..." : "No new votes from the last 10 minutes."}</p>
+            <p>{isLoading ? "Loading recent votes..." : "No new votes from the last 10 minutes."}</p>
             <p className="text-sm">When someone votes for you, it will appear here live.</p>
         </div>
       )}

@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import Link from "next/link";
@@ -25,6 +24,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useEffect, useState } from "react";
+import { getUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase-client";
 
 export function Header({ user }: { user: AppUser | null }) {
@@ -40,25 +40,39 @@ export function Header({ user }: { user: AppUser | null }) {
   useEffect(() => {
     setHasNewVotes(user?.hasUnreadNotifications || false);
 
-    const checkNewVotes = async () => {
-      if (!user) return;
-      const supabase = createClient();
-      const { count } = await supabase
-        .from('notifications')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
-      setHasNewVotes((count || 0) > 0);
+    // This custom event is dispatched from the /live page when it loads
+    // or when a new notification arrives in real-time.
+    const handleNotificationUpdate = () => {
+        // When we get an update, we can't be sure if there are new votes or not,
+        // so we need to re-check with the server. A page refresh does this by
+        // re-running the root layout and the `getUser` server action.
+        router.refresh();
     };
 
-    // This event is dispatched from the /live page when it loads
-    // to signal that notifications have been read.
-    window.addEventListener('storage', checkNewVotes);
+    window.addEventListener('notifications-read', handleNotificationUpdate);
+
+    // Set up a real-time listener just for the notification dot.
+    // This ensures the dot appears instantly even if the user isn't on the live page.
+    const supabase = createClient();
+    const channel = supabase
+      .channel('header-notifications')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notifications' },
+        (payload) => {
+            // Check if the notification is for the current user
+            if (payload.new.user_id === user?.id) {
+                setHasNewVotes(true);
+            }
+        }
+      )
+      .subscribe();
 
     return () => {
-      window.removeEventListener('storage', checkNewVotes);
+      window.removeEventListener('notifications-read', handleNotificationUpdate);
+      supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, router]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
