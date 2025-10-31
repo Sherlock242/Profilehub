@@ -47,14 +47,14 @@ export function DeleteAccountForm() {
   };
 
   return (
-    <div className="flex items-center justify-between rounded-lg border border-destructive p-4">
-        <div>
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-lg border border-destructive p-4 gap-4">
+        <div className="flex-1">
             <h3 className="font-semibold">Delete Account</h3>
             <p className="text-sm text-muted-foreground">Permanently remove your account and all associated data.</p>
         </div>
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="destructive" disabled={isLoading}>
+          <Button variant="destructive" disabled={isLoading} className="w-full sm:w-auto">
             Delete Account
           </Button>
         </AlertDialogTrigger>

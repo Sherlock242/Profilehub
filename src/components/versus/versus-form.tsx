@@ -20,9 +20,12 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleVote = async (winner: ProfileForVote) => {
-    setIsLoading(winner.id);
-    const { error } = await recordVote(winner.id);
+  const handleVote = async (winnerId: string, loserId: string, winnerName: string) => {
+    setIsLoading(winnerId);
+    const { error } = await recordVote({
+      votedForId: winnerId,
+      votedAgainstId: loserId,
+    });
     
     if (error) {
         toast({
@@ -32,21 +35,21 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
         });
         setIsLoading(null);
     } else {
-        toast({ title: `Vote casted for ${winner.name}!` });
+        toast({ title: `Vote casted for ${winnerName}!` });
         onVoteCasted();
     }
   };
   
-  const renderUserCard = (user: ProfileForVote) => {
+  const renderUserCard = (user: ProfileForVote, opponent: ProfileForVote) => {
     return (
         <Card
             key={user.id}
             className="flex-1 w-0 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 group"
-            onClick={() => !isLoading && handleVote(user)}
+            onClick={() => !isLoading && handleVote(user.id, opponent.id, user.name)}
         >
             <CardContent className="p-2 sm:p-4 flex flex-col items-center justify-center space-y-2 sm:space-y-3 h-full">
                 <div className="relative">
-                    <Avatar className="h-20 w-20 sm:h-28 sm:w-28 border-4 border-transparent group-hover:border-primary transition-all md:h-48 md:w-48">
+                    <Avatar className="h-20 w-20 sm:h-28 sm:w-28 border-4 border-transparent group-hover:border-primary transition-all md:h-40 lg:h-48 md:w-40 lg:w-48">
                         <AvatarImage src={user.avatarUrl} alt={user.name} />
                         <AvatarFallback className="text-4xl md:text-6xl">
                         <UserCircle />
@@ -58,7 +61,7 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
                         </div>
                     )}
                 </div>
-                <h2 className="text-sm sm:text-lg md:text-2xl font-bold text-center truncate w-full">{user.name}</h2>
+                <h2 className="text-sm sm:text-lg md:text-xl font-bold text-center truncate w-full">{user.name}</h2>
                 <div className="flex items-center gap-2 text-muted-foreground">
                     <Trophy className="w-4 h-4 text-amber-400" />
                     <span className="font-bold text-sm">{user.votes}</span>
@@ -77,13 +80,13 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
     }
 
   return (
-    <div className="w-full animate-fade-in-up">
-       <h1 className="text-lg md:text-3xl font-bold tracking-tighter text-center mb-2">Who would you vote for?</h1>
-       <p className="text-muted-foreground text-center mb-8 md:mb-12 text-base">Click on a profile to cast your vote.</p>
+    <div className="w-full animate-fade-in-up max-w-4xl mx-auto">
+       <h1 className="text-xl md:text-3xl font-bold tracking-tighter text-center mb-2">Who would you vote for?</h1>
+       <p className="text-muted-foreground text-center mb-6 md:mb-10 text-base">Click on a profile to cast your vote.</p>
         <div className="flex flex-row items-stretch justify-center gap-2 sm:gap-4 md:gap-8">
-            {renderUserCard(user1)}
+            {renderUserCard(user1, user2)}
             <div className="flex items-center justify-center text-xl sm:text-2xl md:text-4xl font-bold text-muted-foreground mx-1 sm:mx-2">VS</div>
-            {renderUserCard(user2)}
+            {renderUserCard(user2, user1)}
         </div>
     </div>
   );

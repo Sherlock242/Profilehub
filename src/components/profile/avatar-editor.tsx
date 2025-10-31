@@ -81,7 +81,7 @@ export function AvatarEditor({ user }: { user: AppUser }) {
   const displayUrl = previewUrl || user.avatarUrl;
 
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
       <div className="relative">
         <Avatar className="h-24 w-24 border-2 border-primary/20">
           <AvatarImage key={displayUrl} src={displayUrl} alt={user.name} />
@@ -95,19 +95,13 @@ export function AvatarEditor({ user }: { user: AppUser }) {
           </div>
         )}
       </div>
-      <div className="flex flex-col gap-2">
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          className="hidden"
-          accept="image/png, image/jpeg"
-        />
+      <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto">
         {!selectedFile && (
             <Button
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
               size="sm"
+              className="flex-1"
             >
               <Camera className="mr-2 h-4 w-4" />
               Change photo
@@ -115,7 +109,7 @@ export function AvatarEditor({ user }: { user: AppUser }) {
         )}
 
         {selectedFile && (
-           <Button onClick={handleUpload} disabled={isUploading} size="sm">
+           <Button onClick={handleUpload} disabled={isUploading} size="sm" className="flex-1">
              <Upload className="mr-2 h-4 w-4" />
              Update Avatar
            </Button>
@@ -126,11 +120,19 @@ export function AvatarEditor({ user }: { user: AppUser }) {
           onClick={handleDeleteAvatar}
           disabled={isUploading || (!user.avatarUrl && !previewUrl)}
           size="sm"
+          className="flex-1"
         >
           <Trash2 className="mr-2 h-4 w-4" />
           Delete
         </Button>
       </div>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+        accept="image/png, image/jpeg"
+      />
     </div>
   );
 }
