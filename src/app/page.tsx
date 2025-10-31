@@ -84,7 +84,7 @@ export default function HomePage() {
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] p-4 text-center animate-fade-in">
       <section className="max-w-3xl">
         <h1 className="text-4xl md:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-          Welcome to Profile Hub
+          Welcome to ProHub
         </h1>
         <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
           Who will win? Vote for your favorite profiles and climb the leaderboard. Log in or sign up to get started.

@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { getUser } from '@/lib/auth';
 
 export const metadata: Metadata = {
-  title: 'Profile Hub',
+  title: 'ProHub',
   description: 'Manage your user profile with ease.',
 };
 
