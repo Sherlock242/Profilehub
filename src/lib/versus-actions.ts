@@ -181,19 +181,6 @@ export async function getRecentNotifications(): Promise<{ notifications?: VoteNo
 
     // Define the 10-minute threshold
     const tenMinutesAgo = subMinutes(new Date(), 10).toISOString();
-    
-    // **NEW**: Delete old notifications before fetching new ones.
-    // We use the admin client here because RLS policies might prevent deletion.
-    const supabaseAdmin = createAdminClient();
-    const { error: deleteError } = await supabaseAdmin
-        .from('notifications')
-        .delete()
-        .lt('created_at', tenMinutesAgo);
-
-    if (deleteError) {
-        console.error("Error deleting old notifications:", deleteError);
-        // We don't return an error to the user, just log it. The primary function can still proceed.
-    }
 
     // Fetch notifications from the last 10 minutes for the current user
     const { data, error } = await supabase
