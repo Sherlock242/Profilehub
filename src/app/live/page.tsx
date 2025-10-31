@@ -22,9 +22,14 @@ export default function LiveFeedPage() {
     const [notifications, setNotifications] = useState<VoteNotification[]>([]);
     const [isClient, setIsClient] = useState(false);
 
-    // Load notifications from session storage on initial render
+    // Initial setup on client
     useEffect(() => {
         setIsClient(true);
+        // Clear the new vote indicator when the user visits the page
+        sessionStorage.setItem('hasNewVotes', 'false');
+        // Dispatch event to update header in the same tab
+        window.dispatchEvent(new CustomEvent('new-vote-event'));
+
         try {
             const storedNotifications = sessionStorage.getItem('live-notifications');
             if (storedNotifications) {
@@ -114,6 +119,10 @@ export default function LiveFeedPage() {
                     const updatedNotifications = [newVote, ...current];
                     try {
                         sessionStorage.setItem('live-notifications', JSON.stringify(updatedNotifications));
+                        // Set flag for notification dot
+                        sessionStorage.setItem('hasNewVotes', 'true');
+                        // Dispatch custom event for same-tab header update
+                        window.dispatchEvent(new CustomEvent('new-vote-event'));
                     } catch(e) {
                          console.error("Failed to write to sessionStorage", e);
                     }
@@ -158,27 +167,23 @@ export default function LiveFeedPage() {
                 </AlertDescription>
             </Alert>
             
-            <div className="relative h-96 overflow-hidden">
-                 {notifications.map((notif, index) => {
-                    const age = Date.now() - notif.timestamp;
-                    const opacity = 1.0 - Math.max(0, age - (NOTIFICATION_LIFETIME - 2000)) / 2000;
-                    
+            <div className="space-y-3 relative overflow-y-auto h-96 pr-2">
+                 {notifications.length > 0 ? notifications.map((notif) => {
                     return (
                         <Card 
                             key={notif.id}
-                            className="absolute w-full p-4 flex items-center gap-4 transition-all duration-500 ease-out"
-                            style={{ 
-                                top: `${index * 70}px`,
-                                opacity: opacity,
-                                transform: `scale(${opacity})`
-                            }}
+                            className="p-4 flex items-center gap-4 animate-in fade-in-50 slide-in-from-bottom-2 duration-500"
                         >
                            <Heart className="h-6 w-6 text-red-500 fill-current"/>
-                           <p className="font-semibold">{notif.voterName}</p>
-                           <p>voted for you!</p>
+                           <p><span className="font-semibold">{notif.voterName}</span> voted for you!</p>
                         </Card>
                     );
-                })}
+                }) : (
+                    <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                        <p className="font-semibold">No new votes</p>
+                        <p className="text-sm">When someone votes for you, it will appear here live.</p>
+                    </div>
+                )}
             </div>
         </div>
     );

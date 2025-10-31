@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,35 @@ import {
 
 export function Header({ user }: { user: AppUser | null }) {
   const router = useRouter();
+  const [hasNewVotes, setHasNewVotes] = useState(false);
+
+  useEffect(() => {
+    // Check initial state from sessionStorage
+    if (typeof window !== 'undefined') {
+      const storedValue = sessionStorage.getItem('hasNewVotes');
+      setHasNewVotes(storedValue === 'true');
+    }
+
+    // Listen for changes from other tabs
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'hasNewVotes') {
+        setHasNewVotes(event.newValue === 'true');
+      }
+    };
+    
+    // Listen for custom event from the same tab
+    const handleNewVoteEvent = () => {
+        setHasNewVotes(sessionStorage.getItem('hasNewVotes') === 'true');
+    }
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('new-vote-event', handleNewVoteEvent);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('new-vote-event', handleNewVoteEvent);
+    };
+  }, []);
   
   const handleLogout = async () => {
     await logout();
@@ -42,8 +72,14 @@ export function Header({ user }: { user: AppUser | null }) {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="ghost" asChild size="icon">
+                      <Button variant="ghost" asChild size="icon" className="relative">
                         <Link href="/live">
+                           {hasNewVotes && (
+                            <span className="absolute top-2 right-2 flex h-2 w-2">
+                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                               <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                            </span>
+                           )}
                           <RadioTower className="h-5 w-5" />
                           <span className="sr-only">Live Feed</span>
                         </Link>
