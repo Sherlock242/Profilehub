@@ -1,14 +1,100 @@
 
-import { redirect } from "next/navigation";
-import { getUser } from "@/lib/auth";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { RadioTower } from "lucide-react";
+'use client';
 
-export default async function LiveFeedPage() {
-  const user = await getUser();
-  if (!user) {
-    redirect('/login');
-  }
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase-client';
+import { getUser } from '@/lib/auth';
+import { type AppUser } from '@/lib/definitions';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { RadioTower, CheckCircle } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { formatDistanceToNow } from 'date-fns';
+
+type VoteNotification = {
+  id: string;
+  message: string;
+  voterName: string;
+  timestamp: string;
+};
+
+export default function LiveFeedPage() {
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [notifications, setNotifications] = useState<VoteNotification[]>([]);
+
+  useEffect(() => {
+    // We need to get the user on the client to subscribe to the correct channel
+    const fetchUser = async () => {
+        // This is a client-side utility, but it's calling a server action.
+        // It's a bit of a workaround to get the user in a client component.
+        // A better approach might be a dedicated client-side auth context.
+        const response = await fetch('/api/auth/user');
+        if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+        }
+    };
+    
+    // A temporary API route to get user data on the client might be needed.
+    // For now, let's assume we can get the user. A proper implementation
+    // would involve an API route or a shared auth provider.
+    // Since we don't have that, let's use a trick. We'll make `getUser` callable
+    // from the client, which is not ideal but works for this demo.
+    // Let's pivot: we'll create the supabase client here and get the user directly.
+    const initializePage = async () => {
+        const supabase = createClient();
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+
+        if (authUser) {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('id, name')
+                .eq('id', authUser.id)
+                .single();
+            
+            if (profile) {
+                 const appUser: AppUser = {
+                    id: authUser.id,
+                    email: authUser.email!,
+                    name: profile.name,
+                 };
+                 setUser(appUser);
+            }
+        }
+    };
+    
+    initializePage();
+
+  }, []);
+
+
+  useEffect(() => {
+    if (!user) return;
+
+    const supabase = createClient();
+    const channel = supabase.channel(`votes:${user.id}`);
+
+    channel
+      .on('broadcast', { event: 'new_vote' }, (response) => {
+        const newNotification: VoteNotification = {
+          id: `${response.payload.voterName}-${response.payload.timestamp}`,
+          ...response.payload,
+        };
+        setNotifications((current) => [newNotification, ...current]);
+
+        // Remove the notification after 10 minutes
+        setTimeout(() => {
+          setNotifications((current) =>
+            current.filter((n) => n.id !== newNotification.id)
+          );
+        }, 10 * 60 * 1000); // 10 minutes
+      })
+      .subscribe();
+
+    // Cleanup subscription on component unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   return (
     <div className="container max-w-4xl py-8 animate-fade-in">
@@ -24,10 +110,28 @@ export default async function LiveFeedPage() {
         </AlertDescription>
       </Alert>
 
-      <div className="mt-8 text-center text-muted-foreground">
-        <p>No new votes</p>
-        <p className="text-sm">When someone votes for you, it will appear here live.</p>
-      </div>
+      {notifications.length > 0 ? (
+        <div className="mt-8 space-y-4">
+          {notifications.map((note) => (
+            <Card key={note.id} className="animate-fade-in-up">
+              <CardContent className="p-4 flex items-center gap-4">
+                <CheckCircle className="h-6 w-6 text-green-500" />
+                <div className="flex-1">
+                  <p className="font-semibold">{note.message}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDistanceToNow(new Date(note.timestamp), { addSuffix: true })}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-8 text-center text-muted-foreground">
+            <p>No new votes</p>
+            <p className="text-sm">When someone votes for you, it will appear here live.</p>
+        </div>
+      )}
     </div>
   );
 }
