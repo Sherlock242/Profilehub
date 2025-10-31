@@ -4,6 +4,7 @@
 import { cookies } from "next/headers";
 import { createClient } from "./supabase/server";
 import { revalidatePath } from "next/cache";
+import { createAdminClient } from "./supabase/admin";
 
 type FormState = {
     error?: string;
@@ -158,8 +159,8 @@ export async function deleteAvatar(): Promise<FormState> {
 
 export async function deleteAccount(): Promise<{ error?: string }> {
   const cookieStore = cookies();
-  // We are using the service role client here to bypass RLS for user deletion.
   const supabase = createClient(cookieStore);
+  const supabaseAdmin = createAdminClient();
 
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
@@ -167,9 +168,10 @@ export async function deleteAccount(): Promise<{ error?: string }> {
     return { error: 'Could not authenticate user.' };
   }
 
-  const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id);
+  const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
   
   if (deleteError) {
+    console.error('Account Deletion Error:', deleteError);
     return { error: `Failed to delete account: ${deleteError.message}` };
   }
   
