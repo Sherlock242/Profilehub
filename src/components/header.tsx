@@ -40,19 +40,6 @@ export function Header({ user }: { user: AppUser | null }) {
             {user ? (
               <>
                 <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" asChild size="icon">
-                        <Link href="/leaderboard">
-                          <Trophy className="h-5 w-5" />
-                          <span className="sr-only">Leaderboard</span>
-                        </Link>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Leaderboard</p>
-                    </TooltipContent>
-                  </Tooltip>
                    <Tooltip>
                     <TooltipTrigger asChild>
                       <Button variant="ghost" asChild size="icon">
@@ -64,6 +51,19 @@ export function Header({ user }: { user: AppUser | null }) {
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Live Feed</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" asChild size="icon">
+                        <Link href="/leaderboard">
+                          <Trophy className="h-5 w-5" />
+                          <span className="sr-only">Leaderboard</span>
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Leaderboard</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
