@@ -106,23 +106,6 @@ export async function recordVote(votedForId: string): Promise<{ error?: string }
     return { error: 'An error occurred while casting your vote.' };
   }
 
-  // Broadcast a realtime message to the user who was voted for.
-  // We use the admin client here to securely broadcast from the server.
-  const supabaseAdmin = createAdminClient();
-  const channel = supabaseAdmin.channel(`votes-for-${votedForId}`);
-  
-  const {data: voterProfile} = await supabase.from('profiles').select('name').eq('id', user.id).single();
-
-  await channel.send({
-      type: 'broadcast',
-      event: 'new-vote',
-      payload: { 
-          voterName: voterProfile?.name || 'Someone',
-          timestamp: new Date().toISOString()
-      },
-  });
-
-
   // The database trigger 'increment_vote_count' handles updating the profiles table.
   // We revalidate the leaderboard path to ensure it shows the new counts.
   revalidatePath('/leaderboard');
