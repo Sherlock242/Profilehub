@@ -56,8 +56,8 @@ export default function SignupPage() {
       });
     } else {
       toast({
-        title: "Registration successful!",
-        description: "Your account has been created. Please log in.",
+        title: "Signup successful!",
+        description: "Please check your email for a verification link.",
       });
       router.push("/login");
       router.refresh();
