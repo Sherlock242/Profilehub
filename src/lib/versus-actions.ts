@@ -109,6 +109,7 @@ export async function recordVote({ votedForId, votedAgainstId }: { votedForId: s
     return { error: 'An error occurred while casting your vote.' };
   }
 
+  revalidatePath('/');
   revalidatePath('/leaderboard');
   revalidatePath(`/profile/${votedForId}`);
 
