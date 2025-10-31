@@ -84,20 +84,20 @@ export async function recordVote(votedForId: string): Promise<{ error?: string }
   const supabase = createClient(cookieStore);
 
   const {
-    data: { user },
+    data: { user: voter },
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (!voter) {
     return { error: 'You must be logged in to vote.' };
   }
 
-  if (user.id === votedForId) {
+  if (voter.id === votedForId) {
       return { error: "You cannot vote for yourself." };
   }
   
   // Insert a record of the vote.
   const { error } = await supabase.from('votes').insert({
-    voter_id: user.id,
+    voter_id: voter.id,
     voted_for_id: votedForId,
   });
 
@@ -105,6 +105,21 @@ export async function recordVote(votedForId: string): Promise<{ error?: string }
     console.error("Vote recording error:", error.message);
     return { error: 'An error occurred while casting your vote.' };
   }
+
+  // After successfully recording the vote, broadcast a message.
+  // This uses a service role client to bypass RLS for broadcasting.
+  const supabaseAdmin = createAdminClient();
+  const channel = supabaseAdmin.channel(`votes:${votedForId}`);
+  channel.send({
+      type: 'broadcast',
+      event: 'new_vote',
+      payload: { 
+        message: `${voter.user_metadata.name || 'Someone'} voted for you!`,
+        voterName: voter.user_metadata.name || 'Someone',
+        timestamp: new Date().toISOString()
+      },
+  });
+
 
   // The database trigger 'increment_vote_count' handles updating the profiles table.
   // We revalidate the leaderboard path to ensure it shows the new counts.
