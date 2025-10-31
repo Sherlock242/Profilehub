@@ -3,88 +3,69 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
-import { getUser } from '@/lib/auth';
 import { type AppUser } from '@/lib/definitions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { RadioTower, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
+import { getRecentNotifications, markNotificationsAsRead } from '@/lib/versus-actions';
 
 type VoteNotification = {
   id: string;
   message: string;
-  voterName: string;
   timestamp: string;
 };
 
 export default function LiveFeedPage() {
-  const [user, setUser] = useState<AppUser | null>(null);
   const [notifications, setNotifications] = useState<VoteNotification[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // On visiting the live page, mark new votes as seen
-    sessionStorage.setItem('hasNewVotes', 'false');
-    window.dispatchEvent(new Event('storage')); // Notify header to update
-
-    const initializePage = async () => {
-        const supabase = createClient();
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-
-        if (authUser) {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('id, name')
-                .eq('id', authUser.id)
-                .single();
-            
-            if (profile) {
-                 const appUser: AppUser = {
-                    id: authUser.id,
-                    email: authUser.email!,
-                    name: profile.name,
-                 };
-                 setUser(appUser);
-            }
-        }
-    };
+    // 1. Mark notifications as read and notify header to update
+    markNotificationsAsRead().then(() => {
+        window.dispatchEvent(new Event('storage'));
+    });
     
-    initializePage();
+    // 2. Fetch initial recent notifications
+    getRecentNotifications().then(({ notifications, error }) => {
+        if (notifications) {
+            setNotifications(notifications);
+        }
+        setIsLoading(false);
+    });
 
-  }, []);
-
-
-  useEffect(() => {
-    if (!user) return;
-
+    // 3. Set up real-time listener for new notifications
     const supabase = createClient();
-    const channel = supabase.channel(`votes:${user.id}`);
+    const channel = supabase
+      .channel('realtime-notifications')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notifications' },
+        (payload) => {
+           const newNotification = payload.new as { id: number; actor_name: string; created_at: string };
+           const newVote: VoteNotification = {
+               id: newNotification.id.toString(),
+               message: `${newNotification.actor_name || 'Someone'} voted for you!`,
+               timestamp: newNotification.created_at,
+           };
+           
+           // Add to view and notify header
+           setNotifications((current) => [newVote, ...current]);
+           window.dispatchEvent(new Event('storage'));
 
-    channel
-      .on('broadcast', { event: 'new_vote' }, (response) => {
-        const newNotification: VoteNotification = {
-          id: `${response.payload.voterName}-${response.payload.timestamp}`,
-          ...response.payload,
-        };
-        setNotifications((current) => [newNotification, ...current]);
-        
-        // Indicate that there is a new vote
-        sessionStorage.setItem('hasNewVotes', 'true');
-        window.dispatchEvent(new Event('storage')); // Notify header to update
-
-        // Remove the notification from view after 10 minutes
-        setTimeout(() => {
-          setNotifications((current) =>
-            current.filter((n) => n.id !== newNotification.id)
-          );
-        }, 10 * 60 * 1000); // 10 minutes
-      })
+           // Remove from view after 10 minutes
+           setTimeout(() => {
+               setNotifications((current) => current.filter((n) => n.id !== newVote.id));
+           }, 10 * 60 * 1000); // 10 minutes
+        }
+      )
       .subscribe();
 
     // Cleanup subscription on component unmount
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, []);
 
   return (
     <div className="container max-w-4xl py-8 animate-fade-in">
@@ -96,7 +77,7 @@ export default function LiveFeedPage() {
       <Alert>
         <AlertTitle>Listening for Votes!</AlertTitle>
         <AlertDescription>
-          This screen will update in real-time as other users vote for you. Notifications disappear after 10 minutes.
+          This screen updates in real-time as other users vote for you. Notifications disappear after 10 minutes.
         </AlertDescription>
       </Alert>
 
@@ -118,7 +99,7 @@ export default function LiveFeedPage() {
         </div>
       ) : (
         <div className="mt-8 text-center text-muted-foreground">
-            <p>No new votes</p>
+            <p>{isLoading ? "Loading votes..." : "No new votes from the last 10 minutes."}</p>
             <p className="text-sm">When someone votes for you, it will appear here live.</p>
         </div>
       )}

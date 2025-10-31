@@ -3,6 +3,7 @@ export type AppUser = {
   name: string;
   email: string;
   avatarUrl?: string;
+  hasUnreadNotifications?: boolean;
 };
 
 export type ProfileForVote = Pick<AppUser, "id" | "name" | "avatarUrl"> & {
@@ -15,4 +16,10 @@ export type LeaderboardEntry = {
   name: string;
   avatarUrl?: string;
   votes: number;
+};
+
+export type VoteNotification = {
+    id: string;
+    message: string;
+    timestamp: string;
 };

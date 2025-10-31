@@ -25,33 +25,40 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase-client";
 
 export function Header({ user }: { user: AppUser | null }) {
   const router = useRouter();
-  const [hasNewVotes, setHasNewVotes] = useState(false);
+  const [hasNewVotes, setHasNewVotes] = useState(user?.hasUnreadNotifications || false);
   
   const handleLogout = async () => {
     await logout();
     router.push('/login');
+    router.refresh();
   };
 
   useEffect(() => {
-    const checkNewVotes = () => {
-      const newVotes = sessionStorage.getItem('hasNewVotes') === 'true';
-      setHasNewVotes(newVotes);
+    setHasNewVotes(user?.hasUnreadNotifications || false);
+
+    const checkNewVotes = async () => {
+      if (!user) return;
+      const supabase = createClient();
+      const { count } = await supabase
+        .from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+      setHasNewVotes((count || 0) > 0);
     };
 
-    // Check on initial mount
-    checkNewVotes();
-
-    // Listen for storage changes from other tabs/windows
+    // This event is dispatched from the /live page when it loads
+    // to signal that notifications have been read.
     window.addEventListener('storage', checkNewVotes);
 
-    // Cleanup listener
     return () => {
       window.removeEventListener('storage', checkNewVotes);
     };
-  }, []);
+  }, [user]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

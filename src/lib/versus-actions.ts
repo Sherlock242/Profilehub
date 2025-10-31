@@ -4,8 +4,9 @@
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { type ProfileForVote, type LeaderboardEntry, type AppUser } from './definitions';
+import { type ProfileForVote, type LeaderboardEntry, type AppUser, type VoteNotification } from './definitions';
 import { createAdminClient } from './supabase/admin';
+import { subMinutes } from 'date-fns';
 
 type VersusResult = {
   users?: [ProfileForVote, ProfileForVote];
@@ -95,35 +96,25 @@ export async function recordVote(votedForId: string): Promise<{ error?: string }
       return { error: "You cannot vote for yourself." };
   }
   
-  // Insert a record of the vote.
+  // The database trigger 'on_new_vote' now handles inserting into notifications
+  // and incrementing the vote count. We just need to insert the vote itself.
   const { error } = await supabase.from('votes').insert({
     voter_id: voter.id,
     voted_for_id: votedForId,
   });
 
+
   if (error) {
     console.error("Vote recording error:", error.message);
+    if (error.message.includes('duplicate key value violates unique constraint "votes_voter_id_voted_for_id_key"')) {
+        return { error: 'You have already voted for this user.' };
+    }
     return { error: 'An error occurred while casting your vote.' };
   }
 
-  // After successfully recording the vote, broadcast a message.
-  // This uses a service role client to bypass RLS for broadcasting.
-  const supabaseAdmin = createAdminClient();
-  const channel = supabaseAdmin.channel(`votes:${votedForId}`);
-  channel.send({
-      type: 'broadcast',
-      event: 'new_vote',
-      payload: { 
-        message: `${voter.user_metadata.name || 'Someone'} voted for you!`,
-        voterName: voter.user_metadata.name || 'Someone',
-        timestamp: new Date().toISOString()
-      },
-  });
-
-
-  // The database trigger 'increment_vote_count' handles updating the profiles table.
-  // We revalidate the leaderboard path to ensure it shows the new counts.
+  // Revalidate paths to reflect updated vote counts
   revalidatePath('/leaderboard');
+  revalidatePath(`/profile/${votedForId}`);
 
   return {};
 }
@@ -156,4 +147,56 @@ export async function getLeaderboard(): Promise<{
   );
 
   return { leaderboard };
+}
+
+export async function markNotificationsAsRead(): Promise<{ error?: string }> {
+    const cookieStore = cookies();
+    const supabase = createClient(cookieStore);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Not authenticated" };
+
+    const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+
+    if (error) {
+        console.error("Error marking notifications as read:", error);
+        return { error: error.message };
+    }
+
+    revalidatePath('/', 'layout'); // Important to re-run the layout and get new user state
+    return {};
+}
+
+export async function getRecentNotifications(): Promise<{ notifications?: VoteNotification[], error?: string }> {
+    const cookieStore = cookies();
+    const supabase = createClient(cookieStore);
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Not authenticated" };
+
+    const tenMinutesAgo = subMinutes(new Date(), 10).toISOString();
+
+    const { data, error } = await supabase
+        .from('notifications')
+        .select('id, created_at, actor_name')
+        .eq('user_id', user.id)
+        .gte('created_at', tenMinutesAgo)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error("Error fetching recent notifications:", error);
+        return { error: error.message };
+    }
+
+    const notifications: VoteNotification[] = data.map(n => ({
+        id: n.id.toString(),
+        message: `${n.actor_name || 'Someone'} voted for you!`,
+        timestamp: n.created_at,
+    }));
+    
+    return { notifications };
 }

@@ -12,12 +12,15 @@ export async function getUser(): Promise<AppUser | null> {
     return null;
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  // Fetch profile and unread notifications in parallel
+  const [profileRes, notificationRes] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase.from("notifications").select("id", { count: 'exact', head: true }).eq("user_id", user.id).eq("is_read", false)
+  ]);
 
+  const { data: profile } = profileRes;
+  const { count: unreadCount } = notificationRes;
+  
   if (!profile) {
     // This could happen if the profile creation trigger failed
     return {
@@ -25,6 +28,7 @@ export async function getUser(): Promise<AppUser | null> {
         name: user.user_metadata.name || 'No Name',
         email: user.email!,
         avatarUrl: undefined,
+        hasUnreadNotifications: (unreadCount || 0) > 0,
     }
   }
 
@@ -44,5 +48,6 @@ export async function getUser(): Promise<AppUser | null> {
     name: profile.name,
     email: user.email!,
     avatarUrl,
+    hasUnreadNotifications: (unreadCount || 0) > 0,
   };
 }
