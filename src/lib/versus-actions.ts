@@ -72,7 +72,7 @@ export async function getInitialUsers(): Promise<VersusResult> {
   return { users: [user1, user2] };
 }
 
-export async function recordVote(votedForId: string): Promise<{ error?: string }> {
+export async function recordVote({ votedForId, votedAgainstId }: { votedForId: string, votedAgainstId: string }): Promise<{ error?: string }> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
