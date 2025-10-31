@@ -7,6 +7,7 @@ export type AppUser = {
 
 export type ProfileForVote = Pick<AppUser, "id" | "name" | "avatarUrl"> & {
   votes: number;
+  localVote?: boolean;
 };
 
 export type LeaderboardEntry = {

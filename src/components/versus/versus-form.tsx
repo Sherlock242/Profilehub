@@ -15,13 +15,22 @@ interface VersusFormProps {
     onVoteCasted: () => void;
 }
 
-export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
+export function VersusForm({ users: initialUsers, onVoteCasted }: VersusFormProps) {
+  const [users, setUsers] = useState(initialUsers);
   const [user1, user2] = users;
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleVote = async (winnerId: string, loserId: string, winnerName: string) => {
     setIsLoading(winnerId);
+    
+    // Optimistic UI update
+    setUsers(currentUsers => 
+        currentUsers.map(u => 
+            u.id === winnerId ? { ...u, votes: u.votes + 1, localVote: true } : u
+        ) as [ProfileForVote, ProfileForVote]
+    );
+
     const { error } = await recordVote({
       votedForId: winnerId,
       votedAgainstId: loserId,
@@ -33,14 +42,21 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
             title: 'Vote failed',
             description: error,
         });
+        // Revert optimistic update on error
+        setUsers(initialUsers);
         setIsLoading(null);
     } else {
         toast({ title: `Vote casted for ${winnerName}!` });
-        onVoteCasted();
+        // Wait a bit so the user can see the count increase, then fetch next pair
+        setTimeout(() => {
+            onVoteCasted();
+        }, 500); 
     }
   };
   
   const renderUserCard = (user: ProfileForVote, opponent: ProfileForVote) => {
+    const displayVotes = user.votes;
+
     return (
         <Card
             key={user.id}
@@ -64,7 +80,7 @@ export function VersusForm({ users, onVoteCasted }: VersusFormProps) {
                 <h2 className="text-sm sm:text-lg md:text-xl font-bold text-center truncate w-full">{user.name}</h2>
                 <div className="flex items-center gap-2 text-muted-foreground">
                     <Trophy className="w-4 h-4 text-amber-400" />
-                    <span className="font-bold text-sm">{user.votes}</span>
+                    <span className={`font-bold text-sm transition-colors duration-300 ${user.localVote ? 'text-primary' : ''}`}>{displayVotes}</span>
                 </div>
                 <Button
                 variant="outline"
