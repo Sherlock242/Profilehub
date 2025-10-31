@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User as UserIcon, Trophy } from "lucide-react";
+import { LogOut, User as UserIcon, Trophy, RadioTower } from "lucide-react";
 import { Logo } from "./logo";
 import { type AppUser } from "@/lib/definitions";
 import { logout } from "@/lib/auth-actions";
@@ -40,6 +40,19 @@ export function Header({ user }: { user: AppUser | null }) {
             {user ? (
               <>
                 <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" asChild size="icon">
+                        <Link href="/live">
+                          <RadioTower className="h-5 w-5" />
+                          <span className="sr-only">Live Feed</span>
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Live Feed</p>
+                    </TooltipContent>
+                  </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button variant="ghost" asChild size="icon">

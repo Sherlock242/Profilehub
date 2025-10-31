@@ -4,7 +4,8 @@
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { type ProfileForVote, type LeaderboardEntry } from './definitions';
+import { type ProfileForVote, type LeaderboardEntry, type AppUser } from './definitions';
+import { createAdminClient } from './supabase/admin';
 
 type VersusResult = {
   users?: [ProfileForVote, ProfileForVote];
@@ -104,6 +105,23 @@ export async function recordVote(votedForId: string): Promise<{ error?: string }
     console.error("Vote recording error:", error.message);
     return { error: 'An error occurred while casting your vote.' };
   }
+
+  // Broadcast a realtime message to the user who was voted for.
+  // We use the admin client here to securely broadcast from the server.
+  const supabaseAdmin = createAdminClient();
+  const channel = supabaseAdmin.channel(`votes-for-${votedForId}`);
+  
+  const {data: voterProfile} = await supabase.from('profiles').select('name').eq('id', user.id).single();
+
+  await channel.send({
+      type: 'broadcast',
+      event: 'new-vote',
+      payload: { 
+          voterName: voterProfile?.name || 'Someone',
+          timestamp: new Date().toISOString()
+      },
+  });
+
 
   // The database trigger 'increment_vote_count' handles updating the profiles table.
   // We revalidate the leaderboard path to ensure it shows the new counts.
