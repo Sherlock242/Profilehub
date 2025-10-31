@@ -29,7 +29,7 @@ export function Header({ user }: { user: AppUser | null }) {
   
   const handleLogout = async () => {
     await logout();
-    router.refresh();
+    router.push('/login');
   };
 
   return (
