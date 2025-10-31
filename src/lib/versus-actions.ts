@@ -4,9 +4,7 @@
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { type ProfileForVote, type LeaderboardEntry, type AppUser, type VoteNotification } from './definitions';
-import { createAdminClient } from './supabase/admin';
-import { subMinutes } from 'date-fns';
+import { type ProfileForVote, type LeaderboardEntry } from './definitions';
 
 type VersusResult = {
   users?: [ProfileForVote, ProfileForVote];
@@ -19,11 +17,9 @@ async function getPublicAvatarUrl(
 ): Promise<string | undefined> {
   if (!path) return undefined;
   const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-  // No longer bust the cache with a timestamp
   return data?.publicUrl;
 }
 
-// Renamed from getTwoRandomUsers
 export async function getInitialUsers(): Promise<VersusResult> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
@@ -33,11 +29,9 @@ export async function getInitialUsers(): Promise<VersusResult> {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    // Return nothing if user is not logged in, the frontend will show a generic welcome message.
     return {};
   }
 
-  // Fetch all profiles other than the current user
   const { data: profiles, error: profilesError } = await supabase
     .from('profiles')
     .select('id, name, avatar_url, votes')
@@ -48,12 +42,10 @@ export async function getInitialUsers(): Promise<VersusResult> {
     return { error: 'Could not fetch users.' };
   }
 
-  // We need at least 2 other users in the system to start a vote.
   if (profiles.length < 2) {
     return { error: "There are not enough other users to start a vote." };
   }
 
-  // Get two random, distinct indices
   let index1 = Math.floor(Math.random() * profiles.length);
   let index2 = Math.floor(Math.random() * profiles.length);
   while (index1 === index2) {
@@ -95,24 +87,14 @@ export async function recordVote(votedForId: string): Promise<{ error?: string }
   if (voter.id === votedForId) {
       return { error: "You cannot vote for yourself." };
   }
-  
-  // The database trigger 'on_new_vote' now handles inserting into notifications
-  // and incrementing the vote count. We just need to insert the vote itself.
-  const { error } = await supabase.from('votes').insert({
-    voter_id: voter.id,
-    voted_for_id: votedForId,
-  });
 
+  const { error } = await supabase.rpc('increment_vote', { user_id: votedForId });
 
   if (error) {
     console.error("Vote recording error:", error.message);
-    if (error.message.includes('duplicate key value violates unique constraint "votes_voter_id_voted_for_id_key"')) {
-        return { error: 'You have already voted for this user.' };
-    }
     return { error: 'An error occurred while casting your vote.' };
   }
 
-  // Revalidate paths to reflect updated vote counts
   revalidatePath('/leaderboard');
   revalidatePath(`/profile/${votedForId}`);
 
@@ -147,59 +129,4 @@ export async function getLeaderboard(): Promise<{
   );
 
   return { leaderboard };
-}
-
-export async function markNotificationsAsRead(): Promise<{ error?: string }> {
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { error: "Not authenticated" };
-
-    const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
-
-    if (error) {
-        console.error("Error marking notifications as read:", error);
-        return { error: error.message };
-    }
-
-    // Revalidate the root layout to re-run `getUser` and update the dot
-    revalidatePath('/', 'layout');
-    return {};
-}
-
-export async function getRecentNotifications(): Promise<{ notifications?: VoteNotification[], error?: string }> {
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-    
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { error: "Not authenticated" };
-
-    // Define the 10-minute threshold
-    const tenMinutesAgo = subMinutes(new Date(), 10).toISOString();
-
-    // Fetch notifications from the last 10 minutes for the current user
-    const { data, error } = await supabase
-        .from('notifications')
-        .select('id, created_at, actor_name')
-        .eq('user_id', user.id)
-        .gte('created_at', tenMinutesAgo)
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error("Error fetching recent notifications:", error);
-        return { error: error.message };
-    }
-
-    const notifications: VoteNotification[] = data.map(n => ({
-        id: n.id.toString(),
-        message: `${n.actor_name || 'Someone'} voted for you!`,
-        timestamp: n.created_at,
-    }));
-    
-    return { notifications };
 }

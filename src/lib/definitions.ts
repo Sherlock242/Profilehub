@@ -3,7 +3,6 @@ export type AppUser = {
   name: string;
   email: string;
   avatarUrl?: string;
-  hasUnreadNotifications: boolean;
 };
 
 export type ProfileForVote = Pick<AppUser, "id" | "name" | "avatarUrl"> & {
