@@ -24,3 +24,13 @@ export type VoteNotification = {
     message: string;
     timestamp: string;
 };
+
+export type Article = {
+  id: string;
+  created_at: string;
+  title: string;
+  excerpt: string | null;
+  image_url: string | null;
+  content: string | null;
+  author_id: string | null;
+};
