@@ -74,7 +74,7 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
   }
 
   const validatedFields = ArticleSchema.safeParse({
-    id: formData.get('id'),
+    id: formData.get('id') || undefined,
     title: formData.get('title'),
     excerpt: formData.get('excerpt'),
     content: formData.get('content'),

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useFormState } from 'react-dom';
+import { useActionState } from 'react';
 import { upsertArticle, type ArticleFormState } from '@/lib/article-actions';
 import { type Article } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
@@ -11,8 +11,8 @@ import { SubmitButton } from './submit-button';
 
 export function ArticleForm({ article }: { article?: Article }) {
   const initialState: ArticleFormState = { errors: {} };
-  const upsertArticleWithId = upsertArticle.bind(null);
-  const [state, dispatch] = useFormState(upsertArticleWithId, initialState);
+  const upsertArticleWithId = upsertArticle;
+  const [state, dispatch] = useActionState(upsertArticleWithId, initialState);
 
   return (
     <form action={dispatch} className="space-y-6">
