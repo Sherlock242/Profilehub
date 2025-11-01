@@ -25,6 +25,8 @@ export default async function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@700&display=swap"
           rel="stylesheet"
         />
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2882939249270622"
+     crossOrigin="anonymous"></script>
       </head>
       <body className="font-body antialiased h-full overflow-x-hidden">
           <div className="flex flex-col min-h-screen">
