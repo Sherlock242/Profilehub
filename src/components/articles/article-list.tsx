@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArticleSectionSkeleton } from './article-section-skeleton';
 import { type Article } from '@/lib/definitions';
+import ReactMarkdown from 'react-markdown';
 
 function ArticleList({ articles }: { articles: Article[] }) {
 
@@ -32,7 +33,15 @@ function ArticleList({ articles }: { articles: Article[] }) {
                   <h2 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
                     <Link href={`/articles/${article.id}`}>{article.title}</Link>
                   </h2>
-                  <p className="text-muted-foreground mb-4 flex-grow">{article.excerpt}</p>
+                  <div className="text-muted-foreground mb-4 flex-grow prose dark:prose-invert prose-sm">
+                    {article.excerpt ? (
+                        <ReactMarkdown
+                            components={{
+                                p: ({node, ...props}) => <p className="text-muted-foreground" {...props} />
+                            }}
+                        >{article.excerpt}</ReactMarkdown>
+                    ) : null}
+                  </div>
                   <Link href={`/articles/${article.id}`} className="text-sm font-semibold text-primary hover:underline mt-auto">
                     Read More &rarr;
                   </Link>
