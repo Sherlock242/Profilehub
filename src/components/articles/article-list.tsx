@@ -10,7 +10,7 @@ function ArticleList({ articles }: { articles: Article[] }) {
   return (
     <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
       <section className="animate-fade-in">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-center mb-10">
+        <h1 className="text-3xl md:text-4xl font-headline font-bold tracking-tighter text-center mb-10">
           Welcome to <span className="text-accent">Pro</span>Hub
         </h1>
         {articles.length > 0 ? (
