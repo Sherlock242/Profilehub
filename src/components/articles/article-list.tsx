@@ -1,22 +1,48 @@
 
+'use client';
+
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArticleSectionSkeleton } from './article-section-skeleton';
 import { type Article } from '@/lib/definitions';
 import ReactMarkdown from 'react-markdown';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 
 function ArticleList({ articles }: { articles: Article[] }) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredArticles =
+    articles?.filter((article) =>
+      article.title.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
 
   return (
     <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
       <section className="animate-fade-in">
-        <h1 className="text-3xl md:text-4xl font-headline font-bold tracking-tighter text-center mb-10">
+        <h1 className="text-3xl md:text-4xl font-headline font-bold tracking-tighter text-center mb-2">
           Welcome to <span className="text-accent">Pro</span>Hub
         </h1>
-        {articles.length > 0 ? (
+        <p className="text-muted-foreground text-center mb-8">
+            Explore our latest articles and insights.
+        </p>
+
+        <div className="relative mb-8 max-w-lg mx-auto">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search articles by title..."
+            className="w-full pl-10"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        {filteredArticles.length > 0 ? (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {articles.map((article) => (
+            {filteredArticles.map((article) => (
               <Card key={article.id} className="overflow-hidden flex flex-col group">
                 <Link href={`/articles/${article.id}`} className="block overflow-hidden">
                   {article.image_url && (
@@ -51,8 +77,8 @@ function ArticleList({ articles }: { articles: Article[] }) {
           </div>
         ) : (
           <div className="text-center text-muted-foreground py-16">
-            <h2 className="text-2xl font-semibold">No Articles Yet</h2>
-            <p>Check back later for new content!</p>
+            <h2 className="text-2xl font-semibold">No Articles Found</h2>
+            <p>Try a different search term or check back later.</p>
           </div>
         )}
       </section>
