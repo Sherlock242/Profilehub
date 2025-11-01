@@ -3,7 +3,7 @@
 
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
-import { type ProfileForVote, type LeaderboardEntry } from './definitions';
+import { type ProfileForVote, type LeaderboardEntry, type Article } from './definitions';
 import { revalidatePath } from 'next/cache';
 
 type VersusResult = {
@@ -18,6 +18,22 @@ async function getPublicAvatarUrl(
   if (!path) return undefined;
   const { data } = supabase.storage.from('avatars').getPublicUrl(path);
   return data?.publicUrl;
+}
+
+export async function getArticlesForClient(): Promise<Article[]> {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching articles:', error);
+    return [];
+  }
+  return data;
 }
 
 export async function getInitialUsers(): Promise<VersusResult> {

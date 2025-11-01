@@ -1,12 +1,11 @@
 
-import { getArticles } from '@/lib/article-actions';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArticleSectionSkeleton } from './article-section-skeleton';
+import { type Article } from '@/lib/definitions';
 
-async function ArticleList() {
-  const articles = await getArticles();
+function ArticleList({ articles }: { articles: Article[] }) {
 
   return (
     <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">

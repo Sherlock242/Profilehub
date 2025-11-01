@@ -2,10 +2,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getInitialUsers } from '@/lib/versus-actions';
+import { getInitialUsers, getArticlesForClient } from '@/lib/versus-actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { VersusForm } from '@/components/versus/versus-form';
-import { type ProfileForVote } from '@/lib/definitions';
+import { type ProfileForVote, type Article } from '@/lib/definitions';
 import { VersusFormSkeleton } from '@/components/versus/versus-form-skeleton';
 import { getUserOnClient } from '@/lib/supabase-client';
 import { AppUser } from '@/lib/definitions';
@@ -17,37 +17,43 @@ export const dynamic = 'force-dynamic';
 
 export default function HomePage() {
   const [user, setUser] = useState<AppUser | null | undefined>(undefined);
-  const [users, setUsers] = useState<[ProfileForVote, ProfileForVote] | null>(null);
+  const [versusUsers, setVersusUsers] = useState<[ProfileForVote, ProfileForVote] | null>(null);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [versusKey, setVersusKey] = useState(Date.now());
 
 
   useEffect(() => {
-    // First, check if there's a user.
-    async function checkUser() {
+    async function initializePage() {
         const currentUser = await getUserOnClient();
         setUser(currentUser);
         if (currentUser) {
-            // If user exists, fetch profiles for voting.
-            fetchUsers();
+            fetchVersusUsers();
         } else {
-            // If no user, stop loading and show public content.
-            setIsLoading(false);
+            fetchArticles();
         }
     }
-    checkUser();
+    initializePage();
   }, []);
 
-  const fetchUsers = () => {
+  const fetchArticles = () => {
+    setIsLoading(true);
+    getArticlesForClient().then(data => {
+        setArticles(data);
+        setIsLoading(false);
+    });
+  }
+
+  const fetchVersusUsers = () => {
     setIsLoading(true);
     getInitialUsers()
       .then(({ users, error }) => {
         if (error) {
           setError(error);
-          setUsers(null);
+          setVersusUsers(null);
         } else if (users) {
-          setUsers(users);
+          setVersusUsers(users);
           setError(null);
           setVersusKey(Date.now()); 
         }
@@ -58,17 +64,16 @@ export default function HomePage() {
   };
 
   const handleVoteCasted = () => {
-    fetchUsers();
+    fetchVersusUsers();
   };
   
   if (user === undefined) {
-    // Still checking for user, show the article skeleton
-    return <ArticleList.Skeleton />;
+    return <ArticleSectionSkeleton />;
   }
   
   if (!user) {
-    // User is not logged in, show the articles
-    return <ArticleList />;
+    if (isLoading) return <ArticleSectionSkeleton />;
+    return <ArticleList articles={articles} />;
   }
 
   // User is logged in, manage voting UI
@@ -91,10 +96,10 @@ export default function HomePage() {
      )
   }
 
-  if (users) {
+  if (versusUsers) {
       return (
         <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-            <VersusForm key={versusKey} users={users} onVoteCasted={handleVoteCasted} />
+            <VersusForm key={versusKey} users={versusUsers} onVoteCasted={handleVoteCasted} />
         </div>
       );
   }
