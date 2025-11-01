@@ -16,37 +16,44 @@ import { ArticleList } from '@/components/articles/article-list';
 export const dynamic = 'force-dynamic';
 
 export default function HomePage() {
-  const [user, setUser] = useState<AppUser | null | undefined>(undefined);
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [versusUsers, setVersusUsers] = useState<[ProfileForVote, ProfileForVote] | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isDataLoading, setIsDataLoading] = useState(false);
   const [versusKey, setVersusKey] = useState(Date.now());
 
 
   useEffect(() => {
-    async function initializePage() {
+    async function checkAuth() {
         const currentUser = await getUserOnClient();
         setUser(currentUser);
-        if (currentUser) {
+        setIsAuthLoading(false);
+    }
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthLoading) {
+        if (user) {
             fetchVersusUsers();
         } else {
             fetchArticles();
         }
     }
-    initializePage();
-  }, []);
+  }, [isAuthLoading, user]);
 
   const fetchArticles = () => {
-    setIsLoading(true);
+    setIsDataLoading(true);
     getArticlesForClient().then(data => {
         setArticles(data);
-        setIsLoading(false);
+        setIsDataLoading(false);
     });
   }
 
   const fetchVersusUsers = () => {
-    setIsLoading(true);
+    setIsDataLoading(true);
     getInitialUsers()
       .then(({ users, error }) => {
         if (error) {
@@ -59,7 +66,7 @@ export default function HomePage() {
         }
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsDataLoading(false);
       });
   };
 
@@ -67,17 +74,17 @@ export default function HomePage() {
     fetchVersusUsers();
   };
   
-  if (user === undefined) {
-    return <ArticleSectionSkeleton />;
+  if (isAuthLoading) {
+    return <VersusFormSkeleton />;
   }
   
   if (!user) {
-    if (isLoading) return <ArticleSectionSkeleton />;
+    if (isDataLoading) return <ArticleSectionSkeleton />;
     return <ArticleList articles={articles} />;
   }
 
   // User is logged in, manage voting UI
-  if (isLoading) {
+  if (isDataLoading) {
     return (
        <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
           <VersusFormSkeleton />
