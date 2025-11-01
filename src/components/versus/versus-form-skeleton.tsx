@@ -20,7 +20,7 @@ export function VersusFormSkeleton() {
   }
 
   return (
-    <div className="w-full animate-fade-in-up max-w-4xl mx-auto">
+    <div className="w-full animate-pulse max-w-4xl mx-auto">
        <h1 className="text-xl md:text-3xl font-bold tracking-tighter text-center mb-2">Who would you vote for?</h1>
        <p className="text-muted-foreground text-center mb-6 md:mb-10 text-base">Click on a profile to cast your vote.</p>
         <div className="flex flex-row items-stretch justify-center gap-2 sm:gap-4 md:gap-8">

@@ -21,7 +21,7 @@ export default function HomePage() {
   const [versusUsers, setVersusUsers] = useState<[ProfileForVote, ProfileForVote] | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isDataLoading, setIsDataLoading] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(true);
   const [versusKey, setVersusKey] = useState(Date.now());
 
 
@@ -35,17 +35,17 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    if (!isAuthLoading) {
-        if (user) {
-            fetchVersusUsers();
-        } else {
-            fetchArticles();
-        }
+    if (isAuthLoading) return;
+
+    setIsDataLoading(true);
+    if (user) {
+        fetchVersusUsers();
+    } else {
+        fetchArticles();
     }
   }, [isAuthLoading, user]);
 
   const fetchArticles = () => {
-    setIsDataLoading(true);
     getArticlesForClient().then(data => {
         setArticles(data);
         setIsDataLoading(false);
@@ -53,7 +53,6 @@ export default function HomePage() {
   }
 
   const fetchVersusUsers = () => {
-    setIsDataLoading(true);
     getInitialUsers()
       .then(({ users, error }) => {
         if (error) {
@@ -71,11 +70,17 @@ export default function HomePage() {
   };
 
   const handleVoteCasted = () => {
+    // Show loading state immediately while new users are fetched
+    setIsDataLoading(true);
     fetchVersusUsers();
   };
   
   if (isAuthLoading) {
-    return <VersusFormSkeleton />;
+    return (
+      <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
+        <VersusFormSkeleton />
+      </div>
+    );
   }
   
   if (!user) {
