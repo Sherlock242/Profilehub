@@ -32,9 +32,9 @@ export default async function AdminPage() {
 
   return (
     <div className="container max-w-4xl py-8 animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Blog Management</h1>
-        <Button asChild>
+        <Button asChild className="w-full sm:w-auto">
           <Link href="/admin/new">
             <PlusCircle className="mr-2 h-4 w-4" />
             Create New Article
