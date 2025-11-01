@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getUser } from "@/lib/auth";
+import { getUserOnServer as getUser } from "@/lib/auth";
 import { getLeaderboard } from "@/lib/versus-actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {

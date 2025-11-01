@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Header } from '@/components/header';
 import { Toaster } from '@/components/ui/toaster';
-import { getUser } from '@/lib/auth';
+import { getUserOnServer } from '@/lib/auth';
 
 export const metadata: Metadata = {
   title: 'ProHub',
@@ -14,7 +14,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getUser();
+  const user = await getUserOnServer();
 
   return (
     <html lang="en" className="h-full dark">
