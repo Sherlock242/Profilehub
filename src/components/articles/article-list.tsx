@@ -11,7 +11,7 @@ function ArticleList({ articles }: { articles: Article[] }) {
     <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
       <section className="animate-fade-in">
         <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-center mb-10">
-          Welcome to ProHub
+          Welcome to <span className="text-accent">Pro</span>Hub
         </h1>
         {articles.length > 0 ? (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">

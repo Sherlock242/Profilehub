@@ -19,7 +19,7 @@ export function ArticleSectionSkeleton() {
   return (
     <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8 animate-pulse">
         <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-center mb-10">
-            Welcome to ProHub
+            Welcome to <span className="text-accent">Pro</span>Hub
         </h1>
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {renderSkeletonCard()}
