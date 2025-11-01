@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useActionState, useState, useRef, ChangeEvent } from 'react';
+import { useActionState, useState, useRef, ChangeEvent, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { upsertArticle, type ArticleFormState } from '@/lib/article-actions';
 import { type Article } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
@@ -10,15 +11,35 @@ import { Button } from '@/components/ui/button';
 import { SubmitButton } from './submit-button';
 import Image from 'next/image';
 import { Camera, Trash2, X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export function ArticleForm({ article }: { article?: Article }) {
-  const initialState: ArticleFormState = { errors: {} };
+  const router = useRouter();
+  const { toast } = useToast();
+  const initialState: ArticleFormState = { errors: {}, message: null };
   const [state, dispatch] = useActionState(upsertArticle, initialState);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(article?.image_url || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [removeImage, setRemoveImage] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (state.message === 'success') {
+      toast({
+        title: article ? 'Article Updated' : 'Article Created',
+        description: 'Your article has been saved successfully.',
+      });
+      router.push('/admin');
+    } else if (state.errors?._form) {
+      toast({
+        variant: 'destructive',
+        title: 'An error occurred',
+        description: state.errors._form,
+      });
+    }
+  }, [state, router, toast, article]);
+
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

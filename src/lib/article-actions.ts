@@ -5,7 +5,6 @@ import { cookies } from 'next/headers';
 import { createClient } from './supabase/server';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { type Article } from './definitions';
 
 const ArticleSchema = z.object({
@@ -29,7 +28,7 @@ export type ArticleFormState = {
     image_url?: string[];
     _form?: string[];
   };
-  message?: string;
+  message: 'success' | 'error' | null;
 };
 
 
@@ -75,7 +74,7 @@ export async function getArticleById(id: string): Promise<Article | null> {
 export async function upsertArticle(prevState: ArticleFormState, formData: FormData): Promise<ArticleFormState> {
   const isAdmin = await checkAdmin();
   if (!isAdmin) {
-    return { errors: { _form: ['You are not authorized to perform this action.'] } };
+    return { errors: { _form: ['You are not authorized to perform this action.'] }, message: 'error' };
   }
 
   const validatedFields = ArticleSchema.safeParse(Object.fromEntries(formData.entries()));
@@ -83,6 +82,7 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
+      message: 'error',
     };
   }
   
@@ -102,7 +102,7 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
   const supabase = createClient(cookieStore);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return { errors: { _form: ['You must be logged in.'] } };
+    return { errors: { _form: ['You must be logged in.'] }, message: 'error' };
   }
 
   let imageUrl: string | null | undefined = current_image_url;
@@ -138,7 +138,7 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
         });
 
     if (uploadError || !uploadData) {
-        return { errors: { _form: [uploadError?.message || 'Failed to upload image.'] } };
+        return { errors: { _form: [uploadError?.message || 'Failed to upload image.'] }, message: 'error' };
     }
 
     const { data: publicUrlData } = supabase.storage.from('article_images').getPublicUrl(uploadData.path);
@@ -151,19 +151,20 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
     // Update existing article
     const { error } = await supabase.from('articles').update(articleData).eq('id', id);
     if (error) {
-        return { errors: { _form: ['Database Error: Failed to update article.'] } };
+        return { errors: { _form: ['Database Error: Failed to update article.'] }, message: 'error' };
     }
   } else {
     // Create new article
     const { error } = await supabase.from('articles').insert({ ...articleData, author_id: user!.id });
     if (error) {
-      return { errors: { _form: ['Database Error: Failed to create article.'] } };
+      return { errors: { _form: ['Database Error: Failed to create article.'] }, message: 'error' };
     }
   }
 
   revalidatePath('/admin');
   revalidatePath('/'); // Also revalidate home page
-  redirect('/admin');
+  
+  return { message: 'success' };
 }
 
 export async function deleteArticle(articleId: string): Promise<{ error?: string }> {
