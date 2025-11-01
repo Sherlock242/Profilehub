@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { getUserOnClient } from '@/lib/supabase-client';
 import { AppUser } from '@/lib/definitions';
+import { ArticleSectionSkeleton } from '@/components/articles/article-section-skeleton';
 
 // Force this page to be dynamic to prevent caching of the random users
 export const dynamic = 'force-dynamic';
@@ -84,8 +85,8 @@ export default function HomePage() {
   };
   
   if (user === undefined) {
-    // Still checking for user, show nothing or a full page loader if preferred
-    return null;
+    // Still checking for user, show the article skeleton
+    return <ArticleSectionSkeleton />;
   }
   
   if (!user) {
