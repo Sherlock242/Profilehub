@@ -10,7 +10,7 @@ import { VersusFormSkeleton } from '@/components/versus/versus-form-skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
-import { getUserOnClient as getUser } from '@/lib/auth';
+import { getUserOnClient } from '@/lib/supabase-client';
 import { AppUser } from '@/lib/definitions';
 
 // Force this page to be dynamic to prevent caching of the random users
@@ -48,7 +48,7 @@ export default function HomePage() {
   useEffect(() => {
     // First, check if there's a user.
     async function checkUser() {
-        const currentUser = await getUser();
+        const currentUser = await getUserOnClient();
         setUser(currentUser);
         if (currentUser) {
             // If user exists, fetch profiles for voting.
