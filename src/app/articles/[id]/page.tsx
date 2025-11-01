@@ -15,7 +15,7 @@ export default async function ArticlePage({ params }: { params: { id: string } }
   }
 
   return (
-    <article className="container max-w-3xl py-8 animate-fade-in">
+    <article className="container max-w-3xl py-8 animate-fade-in px-4">
         <div className="mb-6">
             <Button asChild variant="ghost" size="sm">
                 <Link href="/">
