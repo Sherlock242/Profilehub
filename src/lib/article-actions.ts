@@ -13,7 +13,12 @@ const ArticleSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   excerpt: z.string().optional(),
   content: z.string().optional(),
-  image_url: z.string().url().optional().or(z.literal('')),
+  // For file upload
+  current_image_url: z.string().optional(),
+  image_file: z.string().optional(),
+  image_file_type: z.string().optional(),
+  image_file_name: z.string().optional(),
+  remove_image: z.string().optional(),
 });
 
 export type ArticleFormState = {
@@ -73,13 +78,7 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
     return { errors: { _form: ['You are not authorized to perform this action.'] } };
   }
 
-  const validatedFields = ArticleSchema.safeParse({
-    id: formData.get('id') || undefined,
-    title: formData.get('title'),
-    excerpt: formData.get('excerpt'),
-    content: formData.get('content'),
-    image_url: formData.get('image_url'),
-  });
+  const validatedFields = ArticleSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!validatedFields.success) {
     return {
@@ -87,12 +86,66 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
     };
   }
   
-  const { id, ...articleData } = validatedFields.data;
+  const { 
+    id, 
+    title, 
+    excerpt, 
+    content, 
+    image_file, 
+    image_file_type, 
+    image_file_name,
+    current_image_url,
+    remove_image 
+  } = validatedFields.data;
 
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
-  
   const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { errors: { _form: ['You must be logged in.'] } };
+  }
+
+  let imageUrl: string | null | undefined = current_image_url;
+  const oldImagePath = current_image_url ? new URL(current_image_url).pathname.split('/article_images/')[1] : null;
+
+  // Handle image removal
+  if (remove_image === 'true' && oldImagePath) {
+      const { error: deleteError } = await supabase.storage.from('article_images').remove([oldImagePath]);
+      if (deleteError) {
+          console.error("Error deleting old image:", deleteError.message);
+      }
+      imageUrl = null;
+  }
+  
+  // Handle new image upload
+  if (image_file && image_file_type && image_file_name) {
+    // If there was an old image, remove it first
+    if (oldImagePath) {
+      const { error: deleteError } = await supabase.storage.from('article_images').remove([oldImagePath]);
+      if (deleteError) {
+          console.error("Error deleting old image during replacement:", deleteError.message);
+      }
+    }
+
+    const fileBuffer = Buffer.from(image_file.split(',')[1], 'base64');
+    const newPath = `${user.id}/${Date.now()}_${image_file_name}`;
+    
+    const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("article_images")
+        .upload(newPath, fileBuffer, {
+          contentType: image_file_type,
+          upsert: false,
+        });
+
+    if (uploadError || !uploadData) {
+        return { errors: { _form: [uploadError?.message || 'Failed to upload image.'] } };
+    }
+
+    const { data: publicUrlData } = supabase.storage.from('article_images').getPublicUrl(uploadData.path);
+    imageUrl = publicUrlData.publicUrl;
+  }
+
+  const articleData = { title, excerpt, content, image_url: imageUrl };
 
   if (id) {
     // Update existing article
@@ -122,10 +175,31 @@ export async function deleteArticle(articleId: string): Promise<{ error?: string
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
 
+    // First, get the article to find its image url
+    const { data: article, error: fetchError } = await supabase
+        .from('articles')
+        .select('image_url')
+        .eq('id', articleId)
+        .single();
+    
+    if (fetchError) {
+        return { error: 'Database Error: Could not find article to delete.' };
+    }
+
+    // Delete from database
     const { error } = await supabase.from('articles').delete().eq('id', articleId);
     if (error) {
         return { error: 'Database Error: Failed to delete article.' };
     }
+    
+    // If there was an image, delete it from storage
+    if (article.image_url) {
+        const imagePath = new URL(article.image_url).pathname.split('/article_images/')[1];
+        if (imagePath) {
+            await supabase.storage.from('article_images').remove([imagePath]);
+        }
+    }
+
 
     revalidatePath('/admin');
     revalidatePath('/');
