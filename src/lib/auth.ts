@@ -14,7 +14,7 @@ export async function getUserOnServer(): Promise<AppUser | null> {
     return null;
   }
 
-  const { data: profile } = await supabase.from("profiles").select("id, name, avatar_url").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("id, name, avatar_url, role").eq("id", user.id).single();
   
   if (!profile) {
     return {
@@ -22,6 +22,7 @@ export async function getUserOnServer(): Promise<AppUser | null> {
         name: user.user_metadata.name || 'No Name',
         email: user.email!,
         avatarUrl: undefined,
+        role: 'user',
     }
   }
 
@@ -41,5 +42,6 @@ export async function getUserOnServer(): Promise<AppUser | null> {
     name: profile.name,
     email: user.email!,
     avatarUrl,
+    role: profile.role,
   };
 }

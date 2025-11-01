@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User as UserIcon, Trophy } from "lucide-react";
+import { LogOut, User as UserIcon, Trophy, Shield } from "lucide-react";
 import { Logo } from "./logo";
 import { type AppUser } from "@/lib/definitions";
 import { logout } from "@/lib/auth-actions";
@@ -81,6 +81,14 @@ export function Header({ user }: { user: AppUser | null }) {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                     {user.role === 'admin' && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin">
+                          <Shield className="mr-2 h-4 w-4" />
+                          <span>Admin</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem asChild>
                       <Link href="/profile">
                         <UserIcon className="mr-2 h-4 w-4" />
