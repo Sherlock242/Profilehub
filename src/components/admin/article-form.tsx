@@ -17,7 +17,7 @@ export function ArticleForm({ article }: { article?: Article }) {
   const router = useRouter();
   const { toast } = useToast();
   const initialState: ArticleFormState = { errors: {}, message: null };
-  const [state, dispatch] = useActionState(upsertArticle, initialState);
+  const [state, formAction] = useActionState(upsertArticle, initialState);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(article?.image_url || null);
@@ -68,7 +68,7 @@ export function ArticleForm({ article }: { article?: Article }) {
     });
   };
   
-  const formAction = async (formData: FormData) => {
+  const handleFormAction = async (formData: FormData) => {
     if (selectedFile) {
         try {
             const base64String = await fileToBase64(selectedFile);
@@ -85,11 +85,11 @@ export function ArticleForm({ article }: { article?: Article }) {
         formData.set('remove_image', 'true');
     }
 
-    dispatch(formData);
+    formAction(formData);
   }
 
   return (
-    <form formAction={formAction} className="space-y-6">
+    <form action={handleFormAction} className="space-y-6">
       <input type="hidden" name="id" value={article?.id} />
       <input type="hidden" name="current_image_url" value={article?.image_url || ''} />
       
