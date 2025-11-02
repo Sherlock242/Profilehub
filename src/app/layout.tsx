@@ -3,6 +3,7 @@ import './globals.css';
 import { Header } from '@/components/header';
 import { Toaster } from '@/components/ui/toaster';
 import { getUserOnServer } from '@/lib/auth';
+import { GoogleAnalytics } from '@/components/google-analytics';
 
 export const metadata: Metadata = {
   title: 'ProHub',
@@ -29,6 +30,7 @@ export default async function RootLayout({
      crossOrigin="anonymous"></script>
       </head>
       <body className="font-body antialiased h-full overflow-x-hidden">
+          <GoogleAnalytics gaId="G-9TK0FLDJ3Z" />
           <div className="flex flex-col min-h-screen">
             <Header user={user} />
             <main className="flex-1">{children}</main>
