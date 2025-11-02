@@ -89,7 +89,7 @@ export function ArticleForm({ article }: { article?: Article }) {
   }
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form formAction={formAction} className="space-y-6">
       <input type="hidden" name="id" value={article?.id} />
       <input type="hidden" name="current_image_url" value={article?.image_url || ''} />
       
