@@ -8,12 +8,10 @@ import { type Article } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { SubmitButton } from './submit-button';
 import Image from 'next/image';
-import { Camera, X } from 'lucide-react';
+import { Camera, X, Loader2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '../ui/button';
-import { Loader2 } from 'lucide-react';
 
 function FormSubmitButton() {
     const { pending } = useFormStatus();
