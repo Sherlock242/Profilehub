@@ -148,6 +148,7 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
 
   const articleData = { title, excerpt, content, image_url: imageUrl };
 
+  let articleId = id;
   if (id) {
     // Update existing article
     const { error } = await supabase.from('articles').update(articleData).eq('id', id);
@@ -156,23 +157,20 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
     }
   } else {
     // Create new article
-    const { error } = await supabase.from('articles').insert({ ...articleData, author_id: user!.id });
-    if (error) {
+    const { data, error } = await supabase.from('articles').insert({ ...articleData, author_id: user!.id }).select('id').single();
+    if (error || !data) {
       return { errors: { _form: ['Database Error: Failed to create article.'] }, message: 'error' };
     }
+    articleId = data.id;
   }
 
   revalidatePath('/admin');
   revalidatePath('/'); // Also revalidate home page
-  revalidatePath(`/articles/${id}`);
+  if (articleId) {
+    revalidatePath(`/articles/${articleId}`);
+  }
   
-  // Using return here to send a success message to the form state. The redirect will happen after.
-  // We cannot return and redirect, so we will handle redirect on the client.
-  // The client-side exception is happening, so we'll just let the server action redirect.
-  // No, we need to return the state. The issue is the client side.
-  // Let's try redirecting from the server action. This is the modern Next.js way.
-  // It will not cause a client side exception.
-  redirect('/admin');
+  return { message: 'success', errors: {} };
 }
 
 export async function deleteArticle(articleId: string): Promise<{ error?: string }> {

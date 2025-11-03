@@ -36,8 +36,9 @@ export function ArticleForm({ article }: { article?: Article }) {
             title: article ? 'Article Updated' : 'Article Created',
             description: 'Your article has been saved successfully.',
         });
+        router.push('/admin');
     }
-  }, [state, toast, article]);
+  }, [state, toast, article, router]);
 
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
