@@ -25,20 +25,19 @@ export function ArticleForm({ article }: { article?: Article }) {
   const [removeImage, setRemoveImage] = useState<boolean>(false);
 
   useEffect(() => {
-    if (state.message === 'success') {
-      toast({
-        title: article ? 'Article Updated' : 'Article Created',
-        description: 'Your article has been saved successfully.',
-      });
-      router.push('/admin');
-    } else if (state.errors?._form) {
+    if (state.message === 'error' && state.errors?._form) {
       toast({
         variant: 'destructive',
         title: 'An error occurred',
         description: state.errors._form,
       });
+    } else if (state.message === 'success') {
+        toast({
+            title: article ? 'Article Updated' : 'Article Created',
+            description: 'Your article has been saved successfully.',
+        });
     }
-  }, [state, router, toast, article]);
+  }, [state, toast, article]);
 
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {

@@ -6,6 +6,7 @@ import { createClient } from './supabase/server';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { type Article } from './definitions';
+import { redirect } from 'next/navigation';
 
 const ArticleSchema = z.object({
   id: z.string().optional(),
@@ -163,8 +164,15 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
 
   revalidatePath('/admin');
   revalidatePath('/'); // Also revalidate home page
+  revalidatePath(`/articles/${id}`);
   
-  return { message: 'success' };
+  // Using return here to send a success message to the form state. The redirect will happen after.
+  // We cannot return and redirect, so we will handle redirect on the client.
+  // The client-side exception is happening, so we'll just let the server action redirect.
+  // No, we need to return the state. The issue is the client side.
+  // Let's try redirecting from the server action. This is the modern Next.js way.
+  // It will not cause a client side exception.
+  redirect('/admin');
 }
 
 export async function deleteArticle(articleId: string): Promise<{ error?: string }> {
