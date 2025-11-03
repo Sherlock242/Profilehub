@@ -72,7 +72,7 @@ export async function getArticleById(id: string): Promise<Article | null> {
     return data;
 }
 
-export async function upsertArticle(prevState: ArticleFormState, formData: FormData): Promise<ArticleFormState> {
+export async function upsertArticle(formData: FormData): Promise<ArticleFormState> {
   const isAdmin = await checkAdmin();
   if (!isAdmin) {
     return { errors: { _form: ['You are not authorized to perform this action.'] }, message: 'error' };
@@ -86,17 +86,17 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
       message: 'error',
     };
   }
-  
-  const { 
-    id, 
-    title, 
-    excerpt, 
-    content, 
-    image_file, 
-    image_file_type, 
+
+  const {
+    id,
+    title,
+    excerpt,
+    content,
+    image_file,
+    image_file_type,
     image_file_name,
     current_image_url,
-    remove_image 
+    remove_image
   } = validatedFields.data;
 
   const cookieStore = cookies();
@@ -117,7 +117,7 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
       }
       imageUrl = null;
   }
-  
+
   // Handle new image upload
   if (image_file && image_file_type && image_file_name) {
     // If there was an old image, remove it first
@@ -130,7 +130,7 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
 
     const fileBuffer = Buffer.from(image_file.split(',')[1], 'base64');
     const newPath = `${user.id}/${Date.now()}_${image_file_name}`;
-    
+
     const { data: uploadData, error: uploadError } = await supabase.storage
         .from("article_images")
         .upload(newPath, fileBuffer, {
@@ -169,8 +169,9 @@ export async function upsertArticle(prevState: ArticleFormState, formData: FormD
   if (articleId) {
     revalidatePath(`/articles/${articleId}`);
   }
-  
-  return { message: 'success', errors: {} };
+
+  // Must redirect after revalidation
+  redirect('/admin');
 }
 
 export async function deleteArticle(articleId: string): Promise<{ error?: string }> {
@@ -188,7 +189,7 @@ export async function deleteArticle(articleId: string): Promise<{ error?: string
         .select('image_url')
         .eq('id', articleId)
         .single();
-    
+
     if (fetchError) {
         return { error: 'Database Error: Could not find article to delete.' };
     }
@@ -198,7 +199,7 @@ export async function deleteArticle(articleId: string): Promise<{ error?: string
     if (error) {
         return { error: 'Database Error: Failed to delete article.' };
     }
-    
+
     // If there was an image, delete it from storage
     if (article.image_url) {
         const imagePath = new URL(article.image_url).pathname.split('/article_images/')[1];

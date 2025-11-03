@@ -1,45 +1,40 @@
 
 'use client';
 
-import { useActionState, useState, useRef, ChangeEvent, useEffect } from 'react';
+import { useState, useRef, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { upsertArticle, type ArticleFormState } from '@/lib/article-actions';
+import { upsertArticle } from '@/lib/article-actions';
 import { type Article } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { SubmitButton } from './submit-button';
 import Image from 'next/image';
-import { Camera, Trash2, X } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Camera, X } from 'lucide-react';
+import { useFormStatus } from 'react-dom';
+import { Button } from '../ui/button';
+import { Loader2 } from 'lucide-react';
+
+function FormSubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {pending ? 'Saving...' : 'Save Article'}
+        </Button>
+    )
+}
 
 export function ArticleForm({ article }: { article?: Article }) {
   const router = useRouter();
   const { toast } = useToast();
-  const initialState: ArticleFormState = { errors: {}, message: null };
-  const [state, formAction] = useActionState(upsertArticle, initialState);
+  const [errors, setErrors] = useState<any>({});
+  const [message, setMessage] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(article?.image_url || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [removeImage, setRemoveImage] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (state.message === 'error' && state.errors?._form) {
-      toast({
-        variant: 'destructive',
-        title: 'An error occurred',
-        description: state.errors._form,
-      });
-    } else if (state.message === 'success') {
-        toast({
-            title: article ? 'Article Updated' : 'Article Created',
-            description: 'Your article has been saved successfully.',
-        });
-        router.push('/admin');
-    }
-  }, [state, toast, article, router]);
-
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -67,8 +62,8 @@ export function ArticleForm({ article }: { article?: Article }) {
       reader.onerror = (error) => reject(error);
     });
   };
-  
-  const handleFormAction = async (formData: FormData) => {
+
+  const handleSubmit = async (formData: FormData) => {
     if (selectedFile) {
         try {
             const base64String = await fileToBase64(selectedFile);
@@ -77,7 +72,7 @@ export function ArticleForm({ article }: { article?: Article }) {
             formData.set('image_file_name', selectedFile.name);
         } catch (error) {
             console.error("Could not convert file to base64", error);
-            // Handle error state if needed
+            setErrors({ _form: 'Could not process image file.' });
             return;
         }
     }
@@ -85,14 +80,30 @@ export function ArticleForm({ article }: { article?: Article }) {
         formData.set('remove_image', 'true');
     }
 
-    formAction(formData);
+    const result = await upsertArticle(formData);
+
+    if (result.message === 'error') {
+        setErrors(result.errors || {});
+        toast({
+            variant: 'destructive',
+            title: 'An error occurred',
+            description: result.errors?._form || 'Please check the form for errors.',
+        });
+    } else {
+        toast({
+            title: article ? 'Article Updated' : 'Article Created',
+            description: 'Your article has been saved successfully.',
+        });
+        // The redirect is now handled by the server action
+    }
   }
 
+
   return (
-    <form action={handleFormAction} className="space-y-6">
+    <form action={handleSubmit} className="space-y-6">
       <input type="hidden" name="id" value={article?.id} />
       <input type="hidden" name="current_image_url" value={article?.image_url || ''} />
-      
+
       <div>
         <label htmlFor="title" className="block text-sm font-medium mb-1">Title</label>
         <Input
@@ -103,8 +114,8 @@ export function ArticleForm({ article }: { article?: Article }) {
           required
         />
         <div id="title-error" aria-live="polite" aria-atomic="true">
-          {state.errors?.title &&
-            state.errors.title.map((error: string) => (
+          {errors?.title &&
+            errors.title.map((error: string) => (
               <p className="mt-2 text-sm text-destructive" key={error}>
                 {error}
               </p>
@@ -118,7 +129,7 @@ export function ArticleForm({ article }: { article?: Article }) {
           {previewUrl ? (
             <div className="relative group w-full max-w-md">
                 <Image src={previewUrl} alt="Image preview" width={400} height={300} className="rounded-lg mx-auto" />
-                <div 
+                <div
                     onClick={handleRemoveImage}
                     className="absolute top-2 right-2 cursor-pointer bg-background/50 rounded-full p-1 group-hover:bg-destructive text-destructive-foreground transition-colors"
                 >
@@ -134,7 +145,7 @@ export function ArticleForm({ article }: { article?: Article }) {
                   className="relative cursor-pointer rounded-md font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 hover:text-primary/80"
                 >
                   <span>Upload a file</span>
-                  <input ref={fileInputRef} id="file-upload" name="image_file" type="file" className="sr-only" onChange={handleFileChange} accept="image/*" />
+                  <input ref={fileInputRef} id="file-upload" name="image_file_input" type="file" className="sr-only" onChange={handleFileChange} accept="image/*" />
                 </label>
                 <p className="pl-1">or drag and drop</p>
               </div>
@@ -143,7 +154,7 @@ export function ArticleForm({ article }: { article?: Article }) {
           )}
         </div>
       </div>
-      
+
       <div>
         <label htmlFor="excerpt" className="block text-sm font-medium mb-1">Excerpt</label>
         <Textarea
@@ -154,8 +165,8 @@ export function ArticleForm({ article }: { article?: Article }) {
           aria-describedby="excerpt-error"
         />
         <div id="excerpt-error" aria-live="polite" aria-atomic="true">
-          {state.errors?.excerpt &&
-            state.errors.excerpt.map((error: string) => (
+          {errors?.excerpt &&
+            errors.excerpt.map((error: string) => (
               <p className="mt-2 text-sm text-destructive" key={error}>
                 {error}
               </p>
@@ -173,8 +184,8 @@ export function ArticleForm({ article }: { article?: Article }) {
           aria-describedby="content-error"
         />
         <div id="content-error" aria-live="polite" aria-atomic="true">
-          {state.errors?.content &&
-            state.errors.content.map((error: string) => (
+          {errors?.content &&
+            errors.content.map((error: string) => (
               <p className="mt-2 text-sm text-destructive" key={error}>
                 {error}
               </p>
@@ -182,17 +193,17 @@ export function ArticleForm({ article }: { article?: Article }) {
         </div>
       </div>
 
-      {state.errors?._form && (
+      {errors?._form && (
          <div
            className="mt-2 text-sm text-destructive"
            aria-live="polite"
            aria-atomic="true"
          >
-           <p>{state.errors._form}</p>
+           <p>{errors._form}</p>
          </div>
        )}
 
-      <SubmitButton />
+      <FormSubmitButton />
     </form>
   );
 }
