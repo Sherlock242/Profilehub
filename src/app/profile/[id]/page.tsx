@@ -1,3 +1,4 @@
+
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
@@ -50,7 +51,7 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
   }
 
   return (
-    <div className="container max-w-2xl py-8 animate-fade-in">
+    <div className="container max-w-2xl py-8 animate-fade-in px-4 md:px-6">
         <div className="mb-6">
             <Button asChild variant="ghost" size="sm">
                 <Link href="/leaderboard">
@@ -60,21 +61,21 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
             </Button>
         </div>
       <Card>
-        <CardHeader className="items-center text-center">
-            <Avatar className="h-24 w-24 border-2 border-primary">
-              <AvatarImage src={profile.avatarUrl} alt={profile.name} />
+        <CardHeader className="items-center text-center p-4 sm:p-6">
+            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-2 border-primary">
+              <AvatarImage src={profile.avatarUrl} alt={profile.name ?? ''} />
               <AvatarFallback className="text-3xl">
                 {profile.name ? profile.name.charAt(0).toUpperCase() : <UserCircle/>}
               </AvatarFallback>
             </Avatar>
-            <CardTitle className="mt-4">{profile.name}</CardTitle>
+            <CardTitle className="mt-4 text-xl sm:text-2xl">{profile.name}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-center gap-4 text-center p-4 rounded-lg bg-muted">
                 <Trophy className="h-6 w-6 text-amber-400"/>
                 <div className="text-lg">
-                    <p className="font-bold text-2xl">{profile.votes}</p>
-                    <p className="text-sm text-muted-foreground">Total Votes</p>
+                    <p className="font-bold text-xl sm:text-2xl">{profile.votes}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Total Votes</p>
                 </div>
             </div>
         </CardContent>
