@@ -73,6 +73,8 @@ export function Header({ user }: { user: AppUser | null }) {
   const navLinks: { href: string; label: string }[] = [
     { href: "/category/gym", label: "Gym" },
     { href: "/category/exercises", label: "Exercises" },
+    { href: "/category/yoga", label: "Yoga" },
+    { href: "/category/nutrition", label: "Nutrition" },
   ];
 
   return (
