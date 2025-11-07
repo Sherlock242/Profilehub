@@ -25,7 +25,7 @@ export default function DisclaimerPage() {
             The results of user voting are not a scientific measure of quality, worth, or anything else. They are the collected opinions of the users of this website and should be taken with a large grain of salt. We are not responsible for any bruised egos that may result from lopsided vote counts.
           </p>
         </CardContent>
-      </card>
+      </Card>
     </div>
   );
 }
