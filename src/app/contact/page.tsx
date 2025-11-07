@@ -1,5 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ContactPage() {
   return (
@@ -10,18 +13,27 @@ export default function ContactPage() {
         </CardHeader>
         <CardContent className="prose dark:prose-invert max-w-none">
           <p>
-            Have questions? We'd love to hear from you.
-          </p>
-          <p>
-            While we don't have a traditional contact form (we're a bit too modern for that), you can reach out to us via the digital ether.
+            Have questions or feedback? I'd love to hear from you. The best way to reach out is through email or by connecting with me on social media.
           </p>
           <ul>
-            <li><strong>Email:</strong> You can send your thoughts to `contact@prohub.example.com` (Note: This is a placeholder and is not monitored).</li>
-            <li><strong>Telepathy:</strong> If you are a level 5 telepath, you can project your thoughts directly to our server cluster. Please aim for the one blinking green.</li>
-            <li><strong>Smoke Signals:</strong> We have a scout on a nearby hill. Three puffs for "I like your app," and a continuous stream of smoke for "I found a bug."</li>
+            <li><strong>Email:</strong> You can send an email to <a href="mailto:kanojiyas780@gmail.com">kanojiyas780@gmail.com</a>.</li>
+            <li><strong>YouTube:</strong> Check out the <a href="https://www.youtube.com/@xsoraedit" target="_blank" rel="noopener noreferrer">xsoraedit channel</a>. You can find links to all my other social media profiles in the channel's bio.</li>
           </ul>
-          <p>
-            We appreciate your feedback and will get back to you as soon as possible, provided we can decode your message.
+          <div className="not-prose mt-6 flex gap-4">
+              <Button asChild>
+                <a href="mailto:kanojiyas780@gmail.com">
+                    Email Me
+                </a>
+              </Button>
+               <Button asChild variant="outline">
+                <a href="https://www.youtube.com/@xsoraedit" target="_blank" rel="noopener noreferrer">
+                    YouTube Channel
+                    <ExternalLink className="ml-2" />
+                </a>
+              </Button>
+          </div>
+          <p className="mt-6">
+            I appreciate your feedback and will get back to you as soon as I can.
           </p>
         </CardContent>
       </Card>
