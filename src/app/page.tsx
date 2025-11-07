@@ -83,7 +83,7 @@ export default function HomePage() {
                 />
             )}
             <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center p-4">
-                <h1 className="text-4xl md:text-5xl font-headline font-bold tracking-tighter mb-2 drop-shadow-md">
+                <h1 className="text-4xl font-headline font-bold tracking-tighter mb-2 drop-shadow-md">
                     Welcome to <span className="text-primary">Pro</span>Hub
                 </h1>
                 <p className="text-lg md:text-xl text-primary-foreground/90 drop-shadow-md">
