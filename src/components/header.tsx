@@ -78,10 +78,10 @@ export function Header({ user }: { user: AppUser | null }) {
         <div className="flex items-center gap-2">
             <Sheet>
                 <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon" className="md:hidden">
+                    <button className="p-2 md:hidden">
                         <Menu className="h-6 w-6" />
                         <span className="sr-only">Toggle Navigation</span>
-                    </Button>
+                    </button>
                 </SheetTrigger>
                 <SheetContent side="left" className="flex flex-col">
                     <SheetHeader className="text-left">
@@ -128,7 +128,7 @@ export function Header({ user }: { user: AppUser | null }) {
                     )}
                 </SheetContent>
             </Sheet>
-            <div className={cn("hidden md:block")}>
+            <div className={cn("hidden md:block", isSearchOpen && "hidden")}>
               <Logo />
             </div>
         </div>
