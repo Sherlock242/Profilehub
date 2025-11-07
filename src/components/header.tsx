@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User as UserIcon, Trophy, Shield } from "lucide-react";
+import { LogOut, User as UserIcon, Trophy, Shield, Menu } from "lucide-react";
 import { Logo } from "./logo";
 import { type AppUser } from "@/lib/definitions";
 import { logout } from "@/lib/auth-actions";
@@ -23,6 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 
 export function Header({ user }: { user: AppUser | null }) {
   const router = useRouter();
@@ -33,10 +34,51 @@ export function Header({ user }: { user: AppUser | null }) {
     router.refresh();
   };
 
+  const navLinks = [
+    { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
+    { href: "/terms", label: "Terms & Conditions" },
+    { href: "/privacy", label: "Privacy Policy" },
+    { href: "/disclaimer", label: "Disclaimer" },
+  ];
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-4 sm:px-6">
-        <Logo />
+        <div className="flex items-center gap-2">
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="md:hidden">
+                        <Menu className="h-6 w-6" />
+                        <span className="sr-only">Toggle Navigation</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="left">
+                    <div className="flex flex-col gap-4 py-8">
+                        <Logo />
+                        <nav className="flex flex-col gap-2">
+                            {navLinks.map((link) => (
+                                <SheetClose asChild key={link.href}>
+                                    <Button asChild variant="ghost" className="justify-start">
+                                        <Link href={link.href}>{link.label}</Link>
+                                    </Button>
+                                </SheetClose>
+                            ))}
+                        </nav>
+                    </div>
+                </SheetContent>
+            </Sheet>
+            <Logo />
+        </div>
+
+        <nav className="hidden md:flex md:gap-4 lg:gap-6">
+            {navLinks.map(link => (
+                <Button key={link.href} variant="ghost" size="sm" asChild>
+                    <Link href={link.href}>{link.label}</Link>
+                </Button>
+            ))}
+        </nav>
+
         <div className="flex items-center space-x-2">
             {user ? (
             <>
