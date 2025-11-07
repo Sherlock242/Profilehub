@@ -19,13 +19,13 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
     <Carousel
       opts={{
         align: "start",
-        loop: true,
+        loop: articles.length > 2, // Only loop if there are enough items to scroll past the initial view
       }}
       className="w-full"
     >
       <CarouselContent className="-ml-2 md:-ml-4">
         {articles.map((article) => (
-          <CarouselItem key={article.id} className="pl-4 md:pl-6 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+          <CarouselItem key={article.id} className="pl-4 md:pl-6 basis-4/5 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
             <div className="p-1 h-full">
               <Card className="overflow-hidden flex flex-col h-full group">
                 <Link href={`/articles/${article.id}`} className="block overflow-hidden">
