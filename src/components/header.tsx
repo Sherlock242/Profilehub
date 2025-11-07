@@ -70,7 +70,10 @@ export function Header({ user }: { user: AppUser | null }) {
     };
   }, [isSearchOpen]);
 
-  const navLinks: { href: string; label: string }[] = [];
+  const navLinks: { href: string; label: string }[] = [
+    { href: "/category/gym", label: "Gym" },
+    { href: "/category/exercises", label: "Exercises" },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
