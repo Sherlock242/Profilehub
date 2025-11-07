@@ -11,34 +11,32 @@ export function ArticleSectionSkeleton() {
                 <Skeleton className="h-5 w-3/4 mb-2" />
                 <Skeleton className="h-4 w-full mb-1" />
                 <Skeleton className="h-4 w-2/3 mb-4" />
-                <Skeleton className="h-5 w-24 mt-4" />
+                <Skeleton className="h-5 w-24 mt-auto" />
             </CardContent>
         </Card>
     </div>
   );
 
   return (
-    <div className="animate-pulse container mx-auto py-8 lg:py-12 space-y-12">
-        <div className="text-center">
-            <Skeleton className="h-10 w-1/2 md:w-1/3 mx-auto mb-2" />
-            <Skeleton className="h-5 w-2/3 md:w-1/2 mx-auto" />
+    <div className="animate-pulse">
+        <div className="container mx-auto py-8 lg:py-12 space-y-12">
+            <section>
+              <Skeleton className="h-8 w-1/4 mb-4 px-4 sm:px-0" />
+              <div className="overflow-hidden">
+                <div className="flex -ml-2 md:-ml-4">
+                  {[...Array(5)].map((_, i) => renderSkeletonCard(i))}
+                </div>
+              </div>
+            </section>
+            <section>
+              <Skeleton className="h-8 w-1/4 mb-4 px-4 sm:px-0" />
+              <div className="overflow-hidden">
+                <div className="flex -ml-2 md:-ml-4">
+                  {[...Array(5)].map((_, i) => renderSkeletonCard(i + 5))}
+                </div>
+              </div>
+            </section>
         </div>
-        <section>
-          <Skeleton className="h-8 w-1/4 mb-4 px-4 sm:px-0" />
-          <div className="overflow-hidden -ml-2 md:-ml-4">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => renderSkeletonCard(i))}
-            </div>
-          </div>
-        </section>
-        <section>
-          <Skeleton className="h-8 w-1/4 mb-4 px-4 sm:px-0" />
-          <div className="overflow-hidden -ml-2 md:-ml-4">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => renderSkeletonCard(i + 5))}
-            </div>
-          </div>
-        </section>
     </div>
   );
 }
