@@ -71,6 +71,8 @@ export function Header({ user }: { user: AppUser | null }) {
   }, [isSearchOpen]);
 
   const navLinks = [
+    { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
   ];
 
   return (
@@ -127,7 +129,7 @@ export function Header({ user }: { user: AppUser | null }) {
                     )}
                 </SheetContent>
             </Sheet>
-            <div className={cn({ 'hidden': isSearchOpen })}>
+            <div className={cn("hidden md:block", { 'md:hidden': isSearchOpen })}>
               <Logo />
             </div>
         </div>
@@ -150,8 +152,8 @@ export function Header({ user }: { user: AppUser | null }) {
                   type="search"
                   placeholder="Search..."
                   className={cn(
-                    "w-full pl-10 peer",
-                    isSearchOpen && "bg-transparent border-0 border-b rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                    "w-full pl-10 peer h-9",
+                    isSearchOpen && "bg-transparent border-0 border-b-2 border-primary rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
                   )}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -162,14 +164,14 @@ export function Header({ user }: { user: AppUser | null }) {
             
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className={cn('p-2 md:hidden', { 'hidden': isSearchOpen && !searchRef.current?.contains(document.activeElement) })}
+              className="p-2 rounded-full text-muted-foreground hover:text-primary transition-colors md:hidden"
             >
-              {isSearchOpen ? <X className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors"/> : <Search className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors"/>}
+              {isSearchOpen ? <X className="h-5 w-5"/> : <Search className="h-5 w-5"/>}
               <span className="sr-only">{isSearchOpen ? "Close search" : "Open search"}</span>
             </button>
 
             {user ? (
-            <div className={cn('flex items-center space-x-1')}>
+            <div className="flex items-center space-x-1">
                 <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -234,7 +236,7 @@ export function Header({ user }: { user: AppUser | null }) {
                 </DropdownMenu>
             </div>
             ) : (
-                <div className={cn("hidden md:flex items-center space-x-1")}>
+                <div className="hidden md:flex items-center space-x-1">
                     <Button variant="ghost" asChild size="sm">
                         <Link href="/login">Log in</Link>
                     </Button>

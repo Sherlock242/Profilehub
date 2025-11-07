@@ -1,6 +1,7 @@
+
 import type {Config} from 'tailwindcss';
 
-export default {
+const config: Config = {
   darkMode: ['class'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -8,6 +9,13 @@ export default {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
       typography: (theme: (arg0: string) => any) => ({
         DEFAULT: {
@@ -27,7 +35,6 @@ export default {
             '--tw-prose-pre-code': theme('colors.foreground'),
             '--tw-prose-pre-bg': theme('colors.muted.DEFAULT'),
             '--tw-prose-th-borders': theme('colors.border'),
-            '--tw-prose-td-borders': theme('colors.border'),
             '--tw-prose-invert-body': theme('colors.foreground'),
             '--tw-prose-invert-headings': theme('colors.foreground'),
             '--tw-prose-invert-lead': theme('colors.muted.foreground'),
@@ -126,12 +133,24 @@ export default {
             height: '0',
           },
         },
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'fade-in-up': {
+            from: { opacity: '0', transform: 'translateY(20px)' },
+            to: { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'fade-in': 'fade-in 0.5s ease-in-out',
+        'fade-in-up': 'fade-in-up 0.5s ease-in-out',
       },
     },
   },
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
-} satisfies Config;
+};
+
+export default config;

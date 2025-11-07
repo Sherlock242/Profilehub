@@ -27,13 +27,14 @@ function ArticleList({ articles }: { articles: Article[] }) {
               <Card key={article.id} className="overflow-hidden flex flex-col group">
                 <Link href={`/articles/${article.id}`} className="block overflow-hidden">
                   {article.image_url && (
-                    <Image
-                      src={article.image_url}
-                      alt={article.title}
-                      width={600}
-                      height={400}
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                    <div className="relative w-full aspect-[16/9]">
+                        <Image
+                            src={article.image_url}
+                            alt={article.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                    </div>
                   )}
                 </Link>
                 <CardContent className="p-6 flex-1 flex flex-col">

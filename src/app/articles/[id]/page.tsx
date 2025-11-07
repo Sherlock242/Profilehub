@@ -31,8 +31,8 @@ export default async function ArticlePage({ params }: { params: { id: string } }
                     </Link>
                 </Button>
             </div>
-          <h1 className="text-4xl font-bold tracking-tight mb-4">{article.title}</h1>
-          <p className="text-muted-foreground text-lg mb-6">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">{article.title}</h1>
+          <p className="text-muted-foreground text-base sm:text-lg mb-6">
             Posted on {new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
 

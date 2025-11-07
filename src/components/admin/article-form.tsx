@@ -137,7 +137,7 @@ export function ArticleForm({ article }: { article?: Article }) {
           ) : (
             <div className="text-center">
               <Camera className="mx-auto h-12 w-12 text-muted-foreground" />
-              <div className="mt-4 flex text-sm leading-6 text-muted-foreground">
+              <div className="mt-4 flex text-sm leading-6 text-muted-foreground justify-center">
                 <label
                   htmlFor="file-upload"
                   className="relative cursor-pointer rounded-md font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 hover:text-primary/80"
