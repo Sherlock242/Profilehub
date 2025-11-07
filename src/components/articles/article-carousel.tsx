@@ -26,7 +26,7 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
     >
       <CarouselContent className="-ml-2 md:-ml-4">
         {articles.map((article) => (
-          <CarouselItem key={article.id} className="pl-4 md:pl-6 basis-4/5 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+          <CarouselItem key={article.id} className="pl-4 md:pl-6 basis-[85%] sm:basis-[45%] md:basis-[40%] lg:basis-[30%] xl:basis-[22%]">
             <div className="p-1 h-full">
               <Card className="overflow-hidden flex flex-col h-full group">
                 <Link href={`/articles/${article.id}`} className="block overflow-hidden">
