@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Logo } from './logo';
 
@@ -13,6 +14,12 @@ export function Footer() {
             </p>
           </div>
           <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2 text-sm">
+             <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">
+              About
+            </Link>
+            <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
+              Contact
+            </Link>
             <Link href="/terms" className="text-muted-foreground hover:text-primary transition-colors">
               Terms & Conditions
             </Link>

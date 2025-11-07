@@ -71,8 +71,6 @@ export function Header({ user }: { user: AppUser | null }) {
   }, [isSearchOpen]);
 
   const navLinks = [
-    { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact" },
   ];
 
   return (
