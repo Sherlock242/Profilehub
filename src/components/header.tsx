@@ -81,7 +81,7 @@ export function Header({ user }: { user: AppUser | null }) {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-4 sm:px-6">
-        <div className={cn("flex items-center gap-2", { 'hidden': isSearchOpen })}>
+        <div className="flex items-center gap-2">
             <Sheet>
                 <SheetTrigger asChild>
                     <Button variant="ghost" size="icon" className="md:hidden">
@@ -132,10 +132,12 @@ export function Header({ user }: { user: AppUser | null }) {
                     )}
                 </SheetContent>
             </Sheet>
-            <Logo />
+            <div className={cn({ 'hidden': isSearchOpen })}>
+              <Logo />
+            </div>
         </div>
 
-        <nav className={cn("hidden md:flex md:gap-4 lg:gap-6", { 'hidden': isSearchOpen })}>
+        <nav className="hidden md:flex md:gap-4 lg:gap-6">
             {navLinks.map(link => (
                 <Button key={link.href} variant="ghost" size="sm" asChild>
                     <Link href={link.href}>{link.label}</Link>
@@ -152,7 +154,10 @@ export function Header({ user }: { user: AppUser | null }) {
                 <Input
                   type="search"
                   placeholder="Search..."
-                  className="w-full pl-10 peer"
+                  className={cn(
+                    "w-full pl-10 peer",
+                    isSearchOpen && "bg-transparent border-0 border-b rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                  )}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -164,14 +169,14 @@ export function Header({ user }: { user: AppUser | null }) {
               variant="ghost"
               size="icon"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className={cn({ 'hidden': isSearchOpen && !searchRef.current?.contains(document.activeElement) })}
+              className={cn('md:hidden', { 'hidden': isSearchOpen && !searchRef.current?.contains(document.activeElement) })}
             >
               {isSearchOpen ? <X /> : <Search />}
               <span className="sr-only">{isSearchOpen ? "Close search" : "Open search"}</span>
             </Button>
 
             {user ? (
-            <div className={cn('flex items-center space-x-1', { 'hidden': isSearchOpen })}>
+            <div className={cn('flex items-center space-x-1')}>
                 <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -236,7 +241,7 @@ export function Header({ user }: { user: AppUser | null }) {
                 </DropdownMenu>
             </div>
             ) : (
-                <div className={cn("hidden md:flex items-center space-x-1", { 'hidden': isSearchOpen })}>
+                <div className={cn("hidden md:flex items-center space-x-1")}>
                     <Button variant="ghost" asChild size="sm">
                         <Link href="/login">Log in</Link>
                     </Button>
