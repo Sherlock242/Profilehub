@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export function ArticleSectionSkeleton() {
   const renderSkeletonCard = (key: number) => (
-    <div key={key} className="p-1 shrink-0 grow-0 basis-[85%] sm:basis-[45%] md:basis-[40%] lg:basis-[30%] xl:basis-[22%] pl-4 md:pl-6">
+    <div key={key} className="p-1 h-full shrink-0 grow-0 basis-[85%] sm:basis-[45%] md:basis-[40%] lg:basis-[30%] xl:basis-[22%] pl-4 md:pl-6">
         <Card className="overflow-hidden flex flex-col h-full">
             <Skeleton className="w-full aspect-[16/9]" />
             <CardContent className="p-4 sm:p-6 flex-1 flex flex-col">
@@ -25,16 +25,16 @@ export function ArticleSectionSkeleton() {
         </div>
         <section>
           <Skeleton className="h-8 w-1/4 mb-4 px-4 sm:px-0" />
-          <div className="overflow-hidden">
-            <div className="flex -ml-2 md:-ml-4">
+          <div className="overflow-hidden -ml-2 md:-ml-4">
+            <div className="flex">
               {[...Array(5)].map((_, i) => renderSkeletonCard(i))}
             </div>
           </div>
         </section>
         <section>
           <Skeleton className="h-8 w-1/4 mb-4 px-4 sm:px-0" />
-          <div className="overflow-hidden">
-            <div className="flex -ml-2 md:-ml-4">
+          <div className="overflow-hidden -ml-2 md:-ml-4">
+            <div className="flex">
               {[...Array(5)].map((_, i) => renderSkeletonCard(i + 5))}
             </div>
           </div>
