@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { type Article } from "@/lib/definitions"
 import Image from "next/image"
 import Link from "next/link"
+import ReactMarkdown from "react-markdown"
 
 export function ArticleCarousel({ articles }: { articles: Article[] }) {
   return (
@@ -44,9 +45,16 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
                     <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors leading-tight">
                         <Link href={`/articles/${article.id}`}>{article.title}</Link>
                     </h3>
-                    <p className="text-muted-foreground text-sm flex-grow line-clamp-3">
-                        {article.excerpt}
-                    </p>
+                    <div className="text-muted-foreground text-sm flex-grow line-clamp-3 prose dark:prose-invert prose-sm">
+                      {article.excerpt ? (
+                          <ReactMarkdown
+                            components={{
+                                p: ({node, ...props}) => <p className="text-muted-foreground" {...props} />,
+                                a: ({node, ...props}) => <a className="text-primary hover:underline" {...props} />
+                            }}
+                          >{article.excerpt}</ReactMarkdown>
+                      ) : null}
+                    </div>
                     <Link href={`/articles/${article.id}`} className="text-sm font-semibold text-primary hover:underline mt-4 self-start">
                         Read More &rarr;
                     </Link>
