@@ -23,7 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 
 export function Header({ user }: { user: AppUser | null }) {
   const router = useRouter();
@@ -54,8 +54,14 @@ export function Header({ user }: { user: AppUser | null }) {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="left">
+                    <SheetHeader className="text-left">
+                      <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                      <SheetDescription className="sr-only">A list of pages to navigate to.</SheetDescription>
+                    </SheetHeader>
                     <div className="flex flex-col gap-4 py-8">
-                        <Logo />
+                        <SheetClose asChild>
+                          <Logo />
+                        </SheetClose>
                         <nav className="flex flex-col gap-2">
                             {navLinks.map((link) => (
                                 <SheetClose asChild key={link.href}>
