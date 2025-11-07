@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ export function Header({ user }: { user: AppUser | null }) {
   const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const searchRef = useRef<HTMLDivElement>(null);
   
   const handleLogout = async () => {
     await logout();
@@ -51,6 +52,24 @@ export function Header({ user }: { user: AppUser | null }) {
     }
   };
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchOpen(false);
+      }
+    }
+
+    if (isSearchOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSearchOpen]);
+
   const navLinks = [
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
@@ -62,7 +81,7 @@ export function Header({ user }: { user: AppUser | null }) {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-2">
+        <div className={cn("flex items-center gap-2", { 'hidden': isSearchOpen })}>
             <Sheet>
                 <SheetTrigger asChild>
                     <Button variant="ghost" size="icon" className="md:hidden">
@@ -116,7 +135,7 @@ export function Header({ user }: { user: AppUser | null }) {
             <Logo />
         </div>
 
-        <nav className={cn("hidden md:flex md:gap-4 lg:gap-6", isSearchOpen && 'md:hidden')}>
+        <nav className={cn("hidden md:flex md:gap-4 lg:gap-6", { 'hidden': isSearchOpen })}>
             {navLinks.map(link => (
                 <Button key={link.href} variant="ghost" size="sm" asChild>
                     <Link href={link.href}>{link.label}</Link>
@@ -124,12 +143,12 @@ export function Header({ user }: { user: AppUser | null }) {
             ))}
         </nav>
         
-        <div className={cn("flex flex-1 items-center justify-end space-x-2", !isSearchOpen && "md:flex-initial")}>
+        <div ref={searchRef} className={cn("flex flex-1 items-center justify-end space-x-2", !isSearchOpen && "md:flex-initial")}>
             <div className={cn(
-              "w-full max-w-xs transition-all duration-300 ease-in-out md:w-auto",
-              isSearchOpen ? "opacity-100" : "opacity-0 md:opacity-100"
+              "w-full max-w-sm transition-all duration-300 ease-in-out md:w-auto",
+              isSearchOpen ? "opacity-100" : "opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto"
             )}>
-              <form onSubmit={handleSearchSubmit} className={cn("relative", !isSearchOpen && "md:hidden")}>
+              <form onSubmit={handleSearchSubmit} className={cn("relative", !isSearchOpen && "hidden md:block")}>
                 <Input
                   type="search"
                   placeholder="Search..."
@@ -145,13 +164,14 @@ export function Header({ user }: { user: AppUser | null }) {
               variant="ghost"
               size="icon"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className={cn({ 'hidden': isSearchOpen && !searchRef.current?.contains(document.activeElement) })}
             >
               {isSearchOpen ? <X /> : <Search />}
               <span className="sr-only">{isSearchOpen ? "Close search" : "Open search"}</span>
             </Button>
 
             {user ? (
-            <>
+            <div className={cn('flex items-center space-x-1', { 'hidden': isSearchOpen })}>
                 <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -214,9 +234,9 @@ export function Header({ user }: { user: AppUser | null }) {
                     </DropdownMenuItem>
                 </DropdownMenuContent>
                 </DropdownMenu>
-            </>
+            </div>
             ) : (
-                <div className="hidden md:flex items-center space-x-1">
+                <div className={cn("hidden md:flex items-center space-x-1", { 'hidden': isSearchOpen })}>
                     <Button variant="ghost" asChild size="sm">
                         <Link href="/login">Log in</Link>
                     </Button>
