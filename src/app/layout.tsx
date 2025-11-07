@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
 import { getUserOnServer } from '@/lib/auth';
 import { GoogleAnalytics } from '@/components/google-analytics';
@@ -39,6 +40,7 @@ export default async function RootLayout({
           <div className="flex flex-col min-h-screen">
             <Header user={user} />
             <main className="flex-1">{children}</main>
+            <Footer />
           </div>
           <Toaster />
       </body>

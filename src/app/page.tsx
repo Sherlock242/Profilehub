@@ -11,6 +11,8 @@ import { getUserOnClient } from '@/lib/supabase-client';
 import { AppUser } from '@/lib/definitions';
 import { ArticleSectionSkeleton } from '@/components/articles/article-section-skeleton';
 import { ArticleList } from '@/components/articles/article-list';
+import { LatestArticle } from '@/components/articles/latest-article';
+import { OtherArticles } from '@/components/articles/other-articles';
 
 // Force this page to be dynamic to prevent caching of the random users
 export const dynamic = 'force-dynamic';
@@ -38,10 +40,11 @@ export default function HomePage() {
     if (isAuthLoading) return;
 
     setIsDataLoading(true);
+    // Always fetch articles for the new layout
+    fetchArticles();
+
     if (user) {
         fetchVersusUsers();
-    } else {
-        fetchArticles();
     }
   }, [isAuthLoading, user]);
 
@@ -65,7 +68,7 @@ export default function HomePage() {
         }
       })
       .finally(() => {
-        setIsDataLoading(false);
+        // Data loading is already handled by article fetching
       });
   };
 
@@ -79,46 +82,65 @@ export default function HomePage() {
     return <ArticleSectionSkeleton />;
   }
   
-  if (!user) {
-    if (isDataLoading) return <ArticleSectionSkeleton />;
-    return <ArticleList articles={articles} />;
-  }
-
-  // User is logged in, manage voting UI
-  if (isDataLoading) {
-    return (
-       <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-          <VersusFormSkeleton />
-       </div>
-    )
-  }
-
-  if (error) {
-     return (
-        <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-             <Alert className="max-w-md animate-fade-in">
-                <AlertTitle>Welcome!</AlertTitle>
-                <AlertDescription>{error} Invite some friends to join!</AlertDescription>
-            </Alert>
-        </div>
-     )
-  }
-
-  if (versusUsers) {
+  if (user) {
+    // User is logged in, show voting UI
+    if (isDataLoading) {
       return (
         <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-            <VersusForm key={versusKey} users={versusUsers} onVoteCasted={handleVoteCasted} />
+            <VersusFormSkeleton />
         </div>
-      );
+      )
+    }
+
+    if (error) {
+        return (
+          <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
+              <Alert className="max-w-md animate-fade-in">
+                  <AlertTitle>Welcome!</AlertTitle>
+                  <AlertDescription>{error} Invite some friends to join!</AlertDescription>
+              </Alert>
+          </div>
+        )
+    }
+
+    if (versusUsers) {
+        return (
+          <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
+              <VersusForm key={versusKey} users={versusUsers} onVoteCasted={handleVoteCasted} />
+          </div>
+        );
+    }
   }
 
-  // Fallback content if something goes wrong after login
+  // Logged-out user view (new blog layout)
+  if (isDataLoading) {
+    return <ArticleSectionSkeleton />;
+  }
+
+  if (!articles || articles.length === 0) {
+    return (
+      <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="text-center text-muted-foreground py-16">
+          <h2 className="text-2xl font-semibold">No Articles Found</h2>
+          <p>Check back later for new content.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const latestArticle = articles[0];
+  const otherArticles = articles.slice(1);
+
   return (
-      <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-         <Alert className="max-w-md animate-fade-in">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>Could not load voting session. Please try again later.</AlertDescription>
-        </Alert>
+    <div className="container mx-auto py-8 lg:py-12 animate-fade-in">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+        <div className="lg:w-2/3">
+          <LatestArticle article={latestArticle} />
+        </div>
+        <div className="lg:w-1/3">
+          <OtherArticles articles={otherArticles} />
+        </div>
+      </div>
     </div>
-  )
+  );
 }

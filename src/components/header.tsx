@@ -73,9 +73,6 @@ export function Header({ user }: { user: AppUser | null }) {
   const navLinks = [
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
-    { href: "/terms", label: "Terms & Conditions" },
-    { href: "/privacy", label: "Privacy Policy" },
-    { href: "/disclaimer", label: "Disclaimer" },
   ];
 
   return (
