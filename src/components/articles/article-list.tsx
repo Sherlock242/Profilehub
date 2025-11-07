@@ -70,6 +70,4 @@ function ArticleList({ articles, title, description }: { articles: Article[], ti
   );
 }
 
-ArticleList.Skeleton = ArticleSectionSkeleton;
-
 export { ArticleList };

@@ -6,7 +6,7 @@ import { ArticleSectionSkeleton } from '@/components/articles/article-section-sk
 
 function SearchResults({ query }: { query: string }) {
   return (
-    <Suspense key={query} fallback={<ArticleList.Skeleton />}>
+    <Suspense key={query} fallback={<ArticleSectionSkeleton />}>
       <SearchContent query={query} />
     </Suspense>
   );
