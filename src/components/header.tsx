@@ -44,9 +44,7 @@ export function Header({ user }: { user: AppUser | null }) {
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      // In a real app, you'd navigate to a search results page
-      // For now, we can just log it.
-      console.log("Searching for:", searchTerm);
+      router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
       setIsSearchOpen(false);
       setSearchTerm("");
     }

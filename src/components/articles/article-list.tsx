@@ -17,9 +17,11 @@ function ArticleList({ articles, title, description }: { articles: Article[], ti
         <h1 className="text-3xl md:text-4xl font-headline font-bold tracking-tighter text-center mb-2">
           {title || <>Welcome to <span className="text-accent">Pro</span>Hub</>}
         </h1>
-        <p className="text-muted-foreground text-center mb-8">
-            {description || 'Explore our latest articles and insights.'}
-        </p>
+        {description &&
+          <p className="text-muted-foreground text-center mb-8">
+              {description}
+          </p>
+        }
 
         {articles && articles.length > 0 ? (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -60,7 +62,7 @@ function ArticleList({ articles, title, description }: { articles: Article[], ti
         ) : (
           <div className="text-center text-muted-foreground py-16">
             <h2 className="text-2xl font-semibold">No Articles Found</h2>
-            <p>Check back later for new content in this category.</p>
+            <p>Your search did not return any results. Please try a different term.</p>
           </div>
         )}
       </section>

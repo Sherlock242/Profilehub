@@ -91,6 +91,28 @@ export async function getArticleById(id: string): Promise<Article | null> {
     return data;
 }
 
+export async function searchArticles(query: string): Promise<Article[]> {
+  if (!query) {
+    return [];
+  }
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    // Use `ilike` for case-insensitive search on multiple columns
+    .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%,content.ilike.%${query}%`)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error searching articles:', error);
+    return [];
+  }
+  return data;
+}
+
+
 export async function upsertArticle(formData: FormData): Promise<ArticleFormState> {
   const isAdmin = await checkAdmin();
   if (!isAdmin) {
