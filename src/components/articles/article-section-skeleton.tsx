@@ -22,9 +22,6 @@ export function ArticleSectionSkeleton() {
             <Skeleton className="h-10 w-3/4 mx-auto mb-2" />
             <Skeleton className="h-5 w-1/2 mx-auto" />
         </div>
-        <div className="relative mb-8 max-w-lg mx-auto">
-            <Skeleton className="h-10 w-full" />
-        </div>
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {renderSkeletonCard()}
             {renderSkeletonCard()}
