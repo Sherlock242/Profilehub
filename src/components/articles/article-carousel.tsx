@@ -20,7 +20,7 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
     <Carousel
       opts={{
         align: "start",
-        loop: articles.length > 2, // Only loop if there are enough items to scroll past the initial view
+        loop: articles.length > 3,
       }}
       className="w-full"
     >
@@ -50,7 +50,7 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
                           <ReactMarkdown
                             components={{
                                 p: ({node, ...props}) => <p className="text-muted-foreground" {...props} />,
-                                a: ({node, ...props}) => <a className="text-primary hover:underline" {...props} />
+                                a: ({node, ...props}) => <a className="text-blue-600 dark:text-blue-400 hover:underline" {...props} />
                             }}
                           >{article.excerpt}</ReactMarkdown>
                       ) : null}
