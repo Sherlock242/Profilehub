@@ -128,7 +128,10 @@ export default function HomePage() {
 
   const articlesByCategory = CATEGORIES.reduce((acc, category) => {
     if (category) {
-        const filteredArticles = articles.filter(article => article.category === category);
+        // Treat uncategorized articles as 'Gym' articles
+        const filteredArticles = articles.filter(article => 
+            article.category === category || (category === 'Gym' && !article.category)
+        );
         if (filteredArticles.length > 0) {
             acc[category] = filteredArticles;
         }
@@ -136,10 +139,6 @@ export default function HomePage() {
     return acc;
   }, {} as Record<string, Article[]>);
 
-  const uncategorizedArticles = articles.filter(article => !article.category);
-  if (uncategorizedArticles.length > 0) {
-      articlesByCategory['Uncategorized'] = uncategorizedArticles;
-  }
 
   return (
     <div className="animate-fade-in container mx-auto py-8 lg:py-12 space-y-12">
