@@ -42,7 +42,7 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
                     )}
                 </Link>
                 <CardContent className="p-4 sm:p-6 flex-1 flex flex-col">
-                    <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors leading-tight">
+                    <h3 className="text-lg font-semibold mb-2 transition-colors leading-tight">
                         <Link href={`/articles/${article.id}`}>{article.title}</Link>
                     </h3>
                     <div className="text-muted-foreground text-sm flex-grow line-clamp-3 prose dark:prose-invert prose-sm">
@@ -50,7 +50,7 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
                           <ReactMarkdown
                             components={{
                                 p: ({node, ...props}) => <p className="text-muted-foreground" {...props} />,
-                                a: ({node, ...props}) => <a className="text-blue-600 dark:text-blue-400 hover:underline" {...props} />
+                                a: ({node, ...props}) => <a className="text-primary hover:underline" {...props} />
                             }}
                           >{article.excerpt}</ReactMarkdown>
                       ) : null}
