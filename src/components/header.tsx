@@ -77,7 +77,7 @@ export function Header({ user }: { user: AppUser | null }) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center justify-between px-4 sm:px-6">
+      <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-2">
             <Sheet>
                 <SheetTrigger asChild>
@@ -129,9 +129,13 @@ export function Header({ user }: { user: AppUser | null }) {
                     )}
                 </SheetContent>
             </Sheet>
-            <div className={cn("hidden md:block", { 'md:hidden': isSearchOpen })}>
+            <div className={cn("hidden md:block")}>
               <Logo />
             </div>
+        </div>
+
+        <div className={cn("absolute left-1/2 -translate-x-1/2 md:hidden", { "hidden": isSearchOpen })}>
+          <Logo />
         </div>
 
         <nav className="hidden md:flex md:gap-4 lg:gap-6">
@@ -142,7 +146,7 @@ export function Header({ user }: { user: AppUser | null }) {
             ))}
         </nav>
         
-        <div ref={searchRef} className={cn("flex flex-1 items-center justify-end space-x-2", !isSearchOpen && "md:flex-initial")}>
+        <div ref={searchRef} className={cn("flex flex-1 items-center justify-end space-x-2", isSearchOpen && "w-full", !isSearchOpen && "md:flex-initial")}>
             <div className={cn(
               "w-full max-w-sm transition-all duration-300 ease-in-out md:w-auto",
               isSearchOpen ? "opacity-100" : "opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto"
