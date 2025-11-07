@@ -165,15 +165,13 @@ export function Header({ user }: { user: AppUser | null }) {
               </form>
             </div>
             
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className={cn('md:hidden', { 'hidden': isSearchOpen && !searchRef.current?.contains(document.activeElement) })}
+              className={cn('p-2 md:hidden', { 'hidden': isSearchOpen && !searchRef.current?.contains(document.activeElement) })}
             >
-              {isSearchOpen ? <X /> : <Search />}
+              {isSearchOpen ? <X className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors"/> : <Search className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors"/>}
               <span className="sr-only">{isSearchOpen ? "Close search" : "Open search"}</span>
-            </Button>
+            </button>
 
             {user ? (
             <div className={cn('flex items-center space-x-1')}>
