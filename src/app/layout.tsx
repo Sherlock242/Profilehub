@@ -33,7 +33,8 @@ export default async function RootLayout({
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2882939249270622"
      crossOrigin="anonymous"></script>
       </head>
-      <body className="font-body antialiased h-full overflow-x-hidden">
+      <body className="font-body antialiased h-full">
+        <div className="overflow-x-hidden">
           <Suspense>
             <ProgressBar />
           </Suspense>
@@ -44,6 +45,7 @@ export default async function RootLayout({
             <Footer />
           </div>
           <Toaster />
+        </div>
       </body>
     </html>
   );
