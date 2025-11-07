@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogIn, LogOut, User as UserIcon, Trophy, Shield, Menu, UserPlus } from "lucide-react";
+import { LogIn, LogOut, User as UserIcon, Trophy, Shield, Menu, UserPlus, Search, X } from "lucide-react";
 import { Logo } from "./logo";
 import { type AppUser } from "@/lib/definitions";
 import { logout } from "@/lib/auth-actions";
@@ -25,14 +26,29 @@ import {
 } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Separator } from "./ui/separator";
+import { Input } from "./ui/input";
+import { cn } from "@/lib/utils";
 
 export function Header({ user }: { user: AppUser | null }) {
   const router = useRouter();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   
   const handleLogout = async () => {
     await logout();
     router.push('/login');
     router.refresh();
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      // In a real app, you'd navigate to a search results page
+      // For now, we can just log it.
+      console.log("Searching for:", searchTerm);
+      setIsSearchOpen(false);
+      setSearchTerm("");
+    }
   };
 
   const navLinks = [
@@ -100,15 +116,40 @@ export function Header({ user }: { user: AppUser | null }) {
             <Logo />
         </div>
 
-        <nav className="hidden md:flex md:gap-4 lg:gap-6">
+        <nav className={cn("hidden md:flex md:gap-4 lg:gap-6", isSearchOpen && 'md:hidden')}>
             {navLinks.map(link => (
                 <Button key={link.href} variant="ghost" size="sm" asChild>
                     <Link href={link.href}>{link.label}</Link>
                 </Button>
             ))}
         </nav>
+        
+        <div className={cn("flex flex-1 items-center justify-end space-x-2", !isSearchOpen && "md:flex-initial")}>
+            <div className={cn(
+              "w-full max-w-xs transition-all duration-300 ease-in-out md:w-auto",
+              isSearchOpen ? "opacity-100" : "opacity-0 md:opacity-100"
+            )}>
+              <form onSubmit={handleSearchSubmit} className={cn("relative", !isSearchOpen && "md:hidden")}>
+                <Input
+                  type="search"
+                  placeholder="Search..."
+                  className="w-full pl-10 peer"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground peer-focus:text-primary" />
+              </form>
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+            >
+              {isSearchOpen ? <X /> : <Search />}
+              <span className="sr-only">{isSearchOpen ? "Close search" : "Open search"}</span>
+            </Button>
 
-        <div className="flex items-center space-x-2">
             {user ? (
             <>
                 <TooltipProvider>
