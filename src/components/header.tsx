@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User as UserIcon, Trophy, Shield, Menu } from "lucide-react";
+import { LogIn, LogOut, User as UserIcon, Trophy, Shield, Menu, UserPlus } from "lucide-react";
 import { Logo } from "./logo";
 import { type AppUser } from "@/lib/definitions";
 import { logout } from "@/lib/auth-actions";
@@ -24,6 +24,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Separator } from "./ui/separator";
 
 export function Header({ user }: { user: AppUser | null }) {
   const router = useRouter();
@@ -53,7 +54,7 @@ export function Header({ user }: { user: AppUser | null }) {
                         <span className="sr-only">Toggle Navigation</span>
                     </Button>
                 </SheetTrigger>
-                <SheetContent side="left">
+                <SheetContent side="left" className="flex flex-col">
                     <SheetHeader className="text-left">
                       <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                       <SheetDescription className="sr-only">A list of pages to navigate to.</SheetDescription>
@@ -72,6 +73,28 @@ export function Header({ user }: { user: AppUser | null }) {
                             ))}
                         </nav>
                     </div>
+                    
+                    {!user && (
+                        <div className="mt-auto flex flex-col gap-2">
+                            <Separator />
+                            <SheetClose asChild>
+                                <Button asChild variant="ghost">
+                                    <Link href="/login">
+                                        <LogIn className="mr-2"/>
+                                        Log In
+                                    </Link>
+                                </Button>
+                            </SheetClose>
+                             <SheetClose asChild>
+                                <Button asChild>
+                                    <Link href="/signup">
+                                        <UserPlus className="mr-2"/>
+                                        Sign Up
+                                    </Link>
+                                </Button>
+                            </SheetClose>
+                        </div>
+                    )}
                 </SheetContent>
             </Sheet>
             <Logo />
@@ -152,14 +175,14 @@ export function Header({ user }: { user: AppUser | null }) {
                 </DropdownMenu>
             </>
             ) : (
-            <div className="flex items-center space-x-1">
-                <Button variant="ghost" asChild size="sm">
-                <Link href="/login">Log in</Link>
-                </Button>
-                <Button asChild size="sm">
-                <Link href="/signup">Sign Up</Link>
-                </Button>
-            </div>
+                <div className="hidden md:flex items-center space-x-1">
+                    <Button variant="ghost" asChild size="sm">
+                        <Link href="/login">Log in</Link>
+                    </Button>
+                    <Button asChild size="sm">
+                        <Link href="/signup">Sign Up</Link>
+                    </Button>
+                </div>
             )}
         </div>
       </div>
