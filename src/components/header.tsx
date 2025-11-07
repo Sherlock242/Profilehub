@@ -70,10 +70,7 @@ export function Header({ user }: { user: AppUser | null }) {
     };
   }, [isSearchOpen]);
 
-  const navLinks = [
-    { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact" },
-  ];
+  const navLinks: { href: string; label: string }[] = [];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -95,15 +92,17 @@ export function Header({ user }: { user: AppUser | null }) {
                         <SheetClose asChild>
                           <Logo />
                         </SheetClose>
-                        <nav className="flex flex-col gap-2">
-                            {navLinks.map((link) => (
-                                <SheetClose asChild key={link.href}>
-                                    <Button asChild variant="ghost" className="justify-start">
-                                        <Link href={link.href}>{link.label}</Link>
-                                    </Button>
-                                </SheetClose>
-                            ))}
-                        </nav>
+                        {navLinks.length > 0 && (
+                          <nav className="flex flex-col gap-2">
+                              {navLinks.map((link) => (
+                                  <SheetClose asChild key={link.href}>
+                                      <Button asChild variant="ghost" className="justify-start">
+                                          <Link href={link.href}>{link.label}</Link>
+                                      </Button>
+                                  </SheetClose>
+                              ))}
+                          </nav>
+                        )}
                     </div>
                     
                     {!user && (
