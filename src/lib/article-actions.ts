@@ -62,6 +62,23 @@ export async function getArticles(): Promise<Article[]> {
   return data;
 }
 
+export async function getArticlesByCategory(category: string): Promise<Article[]> {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    .ilike('category', category) // Use ilike for case-insensitive matching
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching articles by category:', error);
+    return [];
+  }
+  return data;
+}
+
 export async function getArticleById(id: string): Promise<Article | null> {
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);

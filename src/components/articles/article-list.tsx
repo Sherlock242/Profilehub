@@ -9,16 +9,16 @@ import { ArticleSectionSkeleton } from './article-section-skeleton';
 import { type Article } from '@/lib/definitions';
 import ReactMarkdown from 'react-markdown';
 
-function ArticleList({ articles }: { articles: Article[] }) {
+function ArticleList({ articles, title, description }: { articles: Article[], title?: string, description?: string }) {
 
   return (
     <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
       <section className="animate-fade-in">
         <h1 className="text-3xl md:text-4xl font-headline font-bold tracking-tighter text-center mb-2">
-          Welcome to <span className="text-accent">Pro</span>Hub
+          {title || <>Welcome to <span className="text-accent">Pro</span>Hub</>}
         </h1>
         <p className="text-muted-foreground text-center mb-8">
-            Explore our latest articles and insights.
+            {description || 'Explore our latest articles and insights.'}
         </p>
 
         {articles && articles.length > 0 ? (
@@ -60,7 +60,7 @@ function ArticleList({ articles }: { articles: Article[] }) {
         ) : (
           <div className="text-center text-muted-foreground py-16">
             <h2 className="text-2xl font-semibold">No Articles Found</h2>
-            <p>Check back later for new content.</p>
+            <p>Check back later for new content in this category.</p>
           </div>
         )}
       </section>
