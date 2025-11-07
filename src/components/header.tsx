@@ -13,17 +13,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogIn, LogOut, User as UserIcon, Trophy, Shield, Menu, UserPlus, Search, X } from "lucide-react";
+import { LogIn, LogOut, User as UserIcon, Shield, Menu, UserPlus, Search, X } from "lucide-react";
 import { Logo } from "./logo";
 import { type AppUser } from "@/lib/definitions";
 import { logout } from "@/lib/auth-actions";
 import { useRouter } from "next/navigation";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Separator } from "./ui/separator";
 import { Input } from "./ui/input";
@@ -178,21 +172,6 @@ export function Header({ user }: { user: AppUser | null }) {
 
             {user ? (
             <div className="flex items-center space-x-1">
-                <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                    <Button variant="ghost" asChild size="icon">
-                        <Link href="/leaderboard">
-                        <Trophy className="h-5 w-5" />
-                        <span className="sr-only">Leaderboard</span>
-                        </Link>
-                    </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                    <p>Leaderboard</p>
-                    </TooltipContent>
-                </Tooltip>
-                </TooltipProvider>
                 <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
