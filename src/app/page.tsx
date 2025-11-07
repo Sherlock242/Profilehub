@@ -132,13 +132,21 @@ export default function HomePage() {
   const otherArticles = articles.slice(1);
 
   return (
-    <div className="container mx-auto py-8 lg:py-12 animate-fade-in">
-      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-        <div className="lg:w-2/3">
-          <LatestArticle article={latestArticle} />
-        </div>
-        <div className="lg:w-1/3">
-          <OtherArticles articles={otherArticles} />
+    <div className="animate-fade-in">
+      {/* Mobile and Tablet View: Standard Article List */}
+      <div className="lg:hidden">
+        <ArticleList articles={articles} />
+      </div>
+
+      {/* Desktop View: Featured Article Layout */}
+      <div className="hidden lg:block container mx-auto py-8 lg:py-12">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+          <div className="lg:w-2/3">
+            <LatestArticle article={latestArticle} />
+          </div>
+          <div className="lg:w-1/3">
+            <OtherArticles articles={otherArticles} />
+          </div>
         </div>
       </div>
     </div>
