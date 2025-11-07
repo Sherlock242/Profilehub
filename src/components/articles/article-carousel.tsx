@@ -50,7 +50,7 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
                           <ReactMarkdown
                             components={{
                                 p: ({node, ...props}) => <p className="text-muted-foreground" {...props} />,
-                                a: ({node, ...props}) => <a className="text-primary hover:underline" {...props} />
+                                a: ({node, ...props}) => <a className="text-blue-600 hover:underline" {...props} />
                             }}
                           >{article.excerpt}</ReactMarkdown>
                       ) : null}
