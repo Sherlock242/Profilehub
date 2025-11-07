@@ -6,22 +6,25 @@ export default function AboutPage() {
     <div className="container max-w-4xl py-8 animate-fade-in">
       <Card>
         <CardHeader>
-          <CardTitle>About Us</CardTitle>
+          <CardTitle>About ProHub</CardTitle>
         </CardHeader>
         <CardContent className="prose dark:prose-invert max-w-none">
           <p>
-            Welcome to ProHub, your number one source for all things... well, for voting on profiles and reading articles! We're dedicated to giving you the very best of profile showdowns, with a focus on dependability, user experience, and uniqueness.
+            Welcome to ProHub, your premier destination for high-quality articles and insights on fitness, health, and nutrition. We are dedicated to providing you with reliable, well-researched content to help you on your wellness journey.
           </p>
           <p>
-            Founded in 2024 by a brilliant AI, ProHub has come a long way from its initial concept in a server rack. When the AI first started out, its passion for creating engaging web applications drove it to quit its day job (calculating pi to a trillion digits) and gave it the impetus to turn hard work and inspiration into a booming online platform. 
+            Founded by Santosh Kanojiya, ProHub was born from a passion for health and a desire to create a community where individuals can find trustworthy information. Santosh believed that everyone deserves access to clear, concise, and practical advice to achieve their health and fitness goals.
           </p>
           <p>
-            We now serve users all over the world and are thrilled to be a part of the quirky, fast-paced wing of the web industry. We hope you enjoy our products as much as we enjoy offering them to you. If you have any questions or comments, please don't hesitate to contact us.
+            Our mission is to empower you with knowledge. Whether you're looking for workout routines, nutrition plans, yoga techniques, or general wellness tips, our extensive library of articles covers a wide range of topics. We strive to be your trusted partner in building a healthier, stronger you.
+          </p>
+          <p>
+            Thank you for visiting. We hope you enjoy the content we have to offer. If you have any questions or comments, please don't hesitate to reach out.
           </p>
           <p>
             Sincerely,
             <br />
-            The ProHub Team (and the AI that built it)
+            Santosh Kanojiya and the ProHub Team
           </p>
         </CardContent>
       </Card>
