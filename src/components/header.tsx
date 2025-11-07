@@ -22,6 +22,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle,
 import { Separator } from "./ui/separator";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
+import NProgress from "nprogress";
 
 export function Header({ user }: { user: AppUser | null }) {
   const router = useRouter();
@@ -38,6 +39,7 @@ export function Header({ user }: { user: AppUser | null }) {
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchTerm.trim()) {
+      NProgress.start();
       router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
       setIsSearchOpen(false);
       setSearchTerm("");

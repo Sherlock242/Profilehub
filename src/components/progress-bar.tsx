@@ -1,3 +1,4 @@
+
 'use client';
 
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -9,7 +10,6 @@ export function ProgressBar() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    NProgress.start();
     NProgress.done();
   }, [pathname, searchParams]);
 
@@ -38,7 +38,6 @@ export function ProgressBar() {
       });
     };
 
-    NProgress.done();
     const mutationObserver = new MutationObserver(handleMutation);
     mutationObserver.observe(document, { childList: true, subtree: true });
 
@@ -47,7 +46,7 @@ export function ProgressBar() {
     return () => {
       mutationObserver.disconnect();
       document.querySelectorAll('a').forEach(anchor => {
-        anchor.removeEventListener('click', handleAnchorClick);
+        anchor.removeEventListener('click', handleAnchorчик);
         delete (anchor as any)._hasNProgressListener;
       });
       window.removeEventListener('popstate', NProgress.done);
