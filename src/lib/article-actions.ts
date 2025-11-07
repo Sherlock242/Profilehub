@@ -13,6 +13,7 @@ const ArticleSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   excerpt: z.string().optional(),
   content: z.string().optional(),
+  category: z.enum(['Gym', 'Exercises', 'Yoga', 'Nutrition']).nullable(),
   // For file upload
   current_image_url: z.string().optional(),
   image_file: z.string().optional(),
@@ -26,6 +27,7 @@ export type ArticleFormState = {
     title?: string[];
     excerpt?: string[];
     content?: string[];
+    category?: string[];
     image_url?: string[];
     _form?: string[];
   };
@@ -92,6 +94,7 @@ export async function upsertArticle(formData: FormData): Promise<ArticleFormStat
     title,
     excerpt,
     content,
+    category,
     image_file,
     image_file_type,
     image_file_name,
@@ -146,7 +149,7 @@ export async function upsertArticle(formData: FormData): Promise<ArticleFormStat
     imageUrl = publicUrlData.publicUrl;
   }
 
-  const articleData = { title, excerpt, content, image_url: imageUrl };
+  const articleData = { title, excerpt, content, image_url: imageUrl, category };
 
   let articleId = id;
   if (id) {

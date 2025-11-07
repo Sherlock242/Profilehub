@@ -4,7 +4,7 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { upsertArticle } from '@/lib/article-actions';
-import { type Article } from '@/lib/definitions';
+import { type Article, CATEGORIES } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +12,13 @@ import Image from 'next/image';
 import { Camera, X, Loader2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '../ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 function FormSubmitButton() {
     const { pending } = useFormStatus();
@@ -33,6 +40,7 @@ export function ArticleForm({ article }: { article?: Article }) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(article?.image_url || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [removeImage, setRemoveImage] = useState<boolean>(false);
+  const [category, setCategory] = useState(article?.category ?? null);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -77,6 +85,9 @@ export function ArticleForm({ article }: { article?: Article }) {
     if (removeImage) {
         formData.set('remove_image', 'true');
     }
+    if (category) {
+        formData.set('category', category);
+    }
 
     const result = await upsertArticle(formData);
 
@@ -120,6 +131,29 @@ export function ArticleForm({ article }: { article?: Article }) {
             ))}
         </div>
       </div>
+
+       <div>
+        <label htmlFor="category" className="block text-sm font-medium mb-1">Category</label>
+        <Select name="category" value={category ?? ""} onValueChange={(value) => setCategory(value as any)}>
+            <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+                {CATEGORIES.map((cat) => cat && (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
+        <div id="category-error" aria-live="polite" aria-atomic="true">
+          {errors?.category &&
+            errors.category.map((error: string) => (
+              <p className="mt-2 text-sm text-destructive" key={error}>
+                {error}
+              </p>
+            ))}
+        </div>
+      </div>
+
 
        <div>
         <label className="block text-sm font-medium mb-1">Cover Image</label>

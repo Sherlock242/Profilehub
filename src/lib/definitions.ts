@@ -33,4 +33,7 @@ export type Article = {
   image_url: string | null;
   content: string | null;
   author_id: string | null;
+  category: 'Gym' | 'Exercises' | 'Yoga' | 'Nutrition' | null;
 };
+
+export const CATEGORIES: Article['category'][] = ['Gym', 'Exercises', 'Yoga', 'Nutrition'];

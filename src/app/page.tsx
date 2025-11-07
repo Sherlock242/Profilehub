@@ -5,14 +5,12 @@ import { useState, useEffect } from 'react';
 import { getInitialUsers, getArticlesForClient } from '@/lib/versus-actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { VersusForm } from '@/components/versus/versus-form';
-import { type ProfileForVote, type Article } from '@/lib/definitions';
+import { type ProfileForVote, type Article, CATEGORIES } from '@/lib/definitions';
 import { VersusFormSkeleton } from '@/components/versus/versus-form-skeleton';
 import { getUserOnClient } from '@/lib/supabase-client';
 import { AppUser } from '@/lib/definitions';
 import { ArticleSectionSkeleton } from '@/components/articles/article-section-skeleton';
-import { ArticleList } from '@/components/articles/article-list';
-import { LatestArticle } from '@/components/articles/latest-article';
-import { OtherArticles } from '@/components/articles/other-articles';
+import { ArticleCarousel } from '@/components/articles/article-carousel';
 
 // Force this page to be dynamic to prevent caching of the random users
 export const dynamic = 'force-dynamic';
@@ -128,27 +126,37 @@ export default function HomePage() {
     );
   }
 
-  const latestArticle = articles[0];
-  const otherArticles = articles.slice(1);
+  const articlesByCategory = CATEGORIES.reduce((acc, category) => {
+    if (category) {
+        const filteredArticles = articles.filter(article => article.category === category);
+        if (filteredArticles.length > 0) {
+            acc[category] = filteredArticles;
+        }
+    }
+    return acc;
+  }, {} as Record<string, Article[]>);
+
+  const uncategorizedArticles = articles.filter(article => !article.category);
+  if (uncategorizedArticles.length > 0) {
+      articlesByCategory['Uncategorized'] = uncategorizedArticles;
+  }
 
   return (
-    <div className="animate-fade-in">
-      {/* Mobile and Tablet View: Standard Article List */}
-      <div className="lg:hidden">
-        <ArticleList articles={articles} />
-      </div>
-
-      {/* Desktop View: Featured Article Layout */}
-      <div className="hidden lg:block container mx-auto py-8 lg:py-12">
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-          <div className="lg:w-2/3">
-            <LatestArticle article={latestArticle} />
-          </div>
-          <div className="lg:w-1/3">
-            <OtherArticles articles={otherArticles} />
-          </div>
+    <div className="animate-fade-in container mx-auto py-8 lg:py-12 space-y-12">
+        <div className="text-center">
+            <h1 className="text-3xl md:text-4xl font-headline font-bold tracking-tighter mb-2">
+            Welcome to <span className="text-accent">Pro</span>Hub
+            </h1>
+            <p className="text-muted-foreground">
+                Explore our latest articles and insights.
+            </p>
         </div>
-      </div>
+      {Object.entries(articlesByCategory).map(([category, articles]) => (
+        <section key={category}>
+          <h2 className="text-2xl font-bold tracking-tight mb-4 px-4 sm:px-0">{category}</h2>
+          <ArticleCarousel articles={articles} />
+        </section>
+      ))}
     </div>
   );
 }
