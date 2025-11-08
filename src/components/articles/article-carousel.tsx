@@ -39,11 +39,6 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                         <div className="absolute top-2 right-2 z-10">
-                           <div className="bg-background/70 rounded-full">
-                            <ShareButton title={article.title} url={`/articles/${article.id}`} />
-                           </div>
-                        </div>
                     </div>
                     )}
                 </Link>
@@ -61,17 +56,20 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
                           >{article.excerpt}</ReactMarkdown>
                       ) : null}
                     </div>
-                    <Link href={`/articles/${article.id}`} className="text-sm font-semibold text-primary hover:underline mt-4 self-start">
-                        Read More &rarr;
-                    </Link>
+                    <div className="mt-4 flex justify-between items-center">
+                        <Link href={`/articles/${article.id}`} className="text-sm font-semibold text-primary hover:underline">
+                            Read More &rarr;
+                        </Link>
+                        <ShareButton title={article.title} url={`/articles/${article.id}`} />
+                    </div>
                 </CardContent>
               </Card>
             </div>
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className="hidden md:flex -left-4" />
-      <CarouselNext className="hidden md:flex -right-4" />
+      <CarouselPrevious className="hidden md:flex" />
+      <CarouselNext className="hidden md:flex" />
     </Carousel>
   )
 }
