@@ -24,6 +24,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className="h-full">
       <head>
+        <link rel="icon" href="/fevicon.ico.jpg" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
