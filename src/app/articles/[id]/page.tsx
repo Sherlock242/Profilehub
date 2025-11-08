@@ -1,4 +1,5 @@
 
+
 import { getArticleById, getArticles } from '@/lib/article-actions';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -8,6 +9,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { OtherArticles } from '@/components/articles/other-articles';
 import { Separator } from '@/components/ui/separator';
+import { ShareButton } from '@/components/articles/share-button';
 
 export default async function ArticlePage({ params }: { params: { id: string } }) {
   const article = await getArticleById(params.id);
@@ -31,7 +33,10 @@ export default async function ArticlePage({ params }: { params: { id: string } }
                     </Link>
                 </Button>
             </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">{article.title}</h1>
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{article.title}</h1>
+              <ShareButton title={article.title} />
+            </div>
           <p className="text-muted-foreground text-base sm:text-lg mb-6">
             Posted on {new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
