@@ -14,6 +14,7 @@ import { type Article } from "@/lib/definitions"
 import Image from "next/image"
 import Link from "next/link"
 import ReactMarkdown from "react-markdown"
+import { ShareButton } from "./share-button";
 
 export function ArticleCarousel({ articles }: { articles: Article[] }) {
   return (
@@ -29,7 +30,7 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
           <CarouselItem key={article.id} className="pl-4 md:pl-6 basis-[85%] sm:basis-[45%] md:basis-[40%] lg:basis-[30%] xl:basis-[22%]">
             <div className="p-1 h-full">
               <Card className="overflow-hidden flex flex-col h-full group">
-                <Link href={`/articles/${article.id}`} className="block overflow-hidden">
+                <Link href={`/articles/${article.id}`} className="block overflow-hidden relative">
                     {article.image_url && (
                     <div className="relative w-full aspect-[16/9]">
                         <Image
@@ -38,6 +39,11 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
+                         <div className="absolute top-2 right-2 z-10">
+                           <div className="bg-background/70 rounded-full">
+                            <ShareButton title={article.title} url={`/articles/${article.id}`} />
+                           </div>
+                        </div>
                     </div>
                     )}
                 </Link>
@@ -64,8 +70,8 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className="hidden md:flex" />
-      <CarouselNext className="hidden md:flex" />
+      <CarouselPrevious className="hidden md:flex -left-4" />
+      <CarouselNext className="hidden md:flex -right-4" />
     </Carousel>
   )
 }

@@ -13,7 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-export function ShareButton({ title }: { title: string }) {
+export function ShareButton({ title, url }: { title: string, url?: string }) {
   const pathname = usePathname();
   const { toast } = useToast();
   const [isShareApiAvailable, setIsShareApiAvailable] = useState(false);
@@ -24,8 +24,11 @@ export function ShareButton({ title }: { title: string }) {
     }
   }, []);
 
-  const handleShare = async () => {
-    const shareUrl = `${window.location.origin}${pathname}`;
+  const handleShare = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Prevent link navigation if the button is inside a link
+    e.stopPropagation();
+
+    const shareUrl = url ? `${window.location.origin}${url}` : `${window.location.origin}${pathname}`;
     
     if (isShareApiAvailable) {
       try {

@@ -35,7 +35,7 @@ export default async function ArticlePage({ params }: { params: { id: string } }
             </div>
             <div className="flex items-start justify-between gap-4 mb-4">
               <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{article.title}</h1>
-              <ShareButton title={article.title} />
+              <ShareButton title={article.title} url={`/articles/${article.id}`} />
             </div>
           <p className="text-muted-foreground text-base sm:text-lg mb-6">
             Posted on {new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
