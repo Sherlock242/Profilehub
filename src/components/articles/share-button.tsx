@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Share2, Copy } from 'lucide-react';
