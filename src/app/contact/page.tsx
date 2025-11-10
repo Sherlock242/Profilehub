@@ -17,7 +17,7 @@ export default function ContactPage() {
           </p>
           <ul>
             <li><strong>Email:</strong> You can send an email to <a href="mailto:kanojiyas780@gmail.com">kanojiyas780@gmail.com</a>.</li>
-            <li><strong>YouTube:</strong> Check out the <a href="https://www.youtube.com/@xsoraedit" target="_blank" rel="noopener noreferrer">xsoraedit channel</a>. You can find links to all my other social media profiles in the channel's bio.</li>
+            <li><strong>YouTube:</strong> Check out the <a href="https://www.youtube.com/@Rahul00000-x" target="_blank" rel="noopener noreferrer">Rahul's channel</a>. You can find links to all my other social media profiles in the channel's bio.</li>
           </ul>
           <div className="not-prose mt-6 flex gap-4">
               <Button asChild>
@@ -26,7 +26,7 @@ export default function ContactPage() {
                 </a>
               </Button>
                <Button asChild variant="outline">
-                <a href="https://www.youtube.com/@xsoraedit" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.youtube.com/@Rahul00000-x" target="_blank" rel="noopener noreferrer">
                     YouTube Channel
                     <ExternalLink className="ml-2" />
                 </a>
