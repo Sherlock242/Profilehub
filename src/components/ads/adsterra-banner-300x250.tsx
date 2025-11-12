@@ -1,12 +1,17 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export function AdsterraBanner300x250() {
   const adRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (adRef.current && adRef.current.children.length === 0) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && adRef.current && adRef.current.children.length === 0) {
       const scriptOptions = document.createElement('script');
       scriptOptions.type = 'text/javascript';
       scriptOptions.innerHTML = `
@@ -26,7 +31,11 @@ export function AdsterraBanner300x250() {
       adRef.current.appendChild(scriptOptions);
       adRef.current.appendChild(scriptInvoke);
     }
-  }, []);
+  }, [isMounted]);
+
+  if (!isMounted) {
+    return null;
+  }
 
   return <div ref={adRef} className="my-8 flex justify-center" />;
 }

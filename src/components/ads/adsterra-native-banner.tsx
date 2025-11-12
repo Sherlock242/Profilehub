@@ -1,12 +1,17 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export function AdsterraNativeBanner() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (containerRef.current && containerRef.current.children.length === 0) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && containerRef.current && containerRef.current.children.length === 0) {
       const script = document.createElement('script');
       script.async = true;
       script.setAttribute('data-cfasync', 'false');
@@ -18,7 +23,11 @@ export function AdsterraNativeBanner() {
       containerRef.current.appendChild(script);
       containerRef.current.appendChild(container);
     }
-  }, []);
+  }, [isMounted]);
+
+  if (!isMounted) {
+    return null;
+  }
 
   return <div ref={containerRef} className="my-8" />;
 }
