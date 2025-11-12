@@ -33,6 +33,7 @@ export default async function RootLayout({
         />
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2882939249270622"
      crossOrigin="anonymous"></script>
+        <script type='text/javascript' src='//pl23753268.highcpmgate.com/89/f6/42/89f642ae2a34551187a59f0931e54f78.js'></script>
       </head>
       <body className="font-body antialiased h-full">
         <div className="overflow-x-hidden">
