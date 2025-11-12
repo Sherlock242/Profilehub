@@ -11,6 +11,7 @@ import { OtherArticles } from '@/components/articles/other-articles';
 import { Separator } from '@/components/ui/separator';
 import { ShareButton } from '@/components/articles/share-button';
 import { AdsterraNativeBanner } from '@/components/ads/adsterra-native-banner';
+import { AdsterraBanner300x250 } from '@/components/ads/adsterra-banner-300x250';
 
 export default async function ArticlePage({ params }: { params: { id: string } }) {
   const article = await getArticleById(params.id);
@@ -63,6 +64,7 @@ export default async function ArticlePage({ params }: { params: { id: string } }
         </article>
         
         <div className="container max-w-3xl py-8 px-4">
+            <AdsterraBanner300x250 />
             <AdsterraNativeBanner />
             {otherArticles.length > 0 && (
             <>
