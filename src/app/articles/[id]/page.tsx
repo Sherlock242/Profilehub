@@ -10,6 +10,7 @@ import { ArrowLeft } from 'lucide-react';
 import { OtherArticles } from '@/components/articles/other-articles';
 import { Separator } from '@/components/ui/separator';
 import { ShareButton } from '@/components/articles/share-button';
+import { AdsterraNativeBanner } from '@/components/ads/adsterra-native-banner';
 
 export default async function ArticlePage({ params }: { params: { id: string } }) {
   const article = await getArticleById(params.id);
@@ -61,14 +62,17 @@ export default async function ArticlePage({ params }: { params: { id: string } }
           </div>
         </article>
         
-        {otherArticles.length > 0 && (
-          <div className="container max-w-3xl py-8 px-4">
-            <Separator className="my-8" />
-            <div className="mt-8">
-              <OtherArticles articles={otherArticles} />
-            </div>
-          </div>
-        )}
+        <div className="container max-w-3xl py-8 px-4">
+            <AdsterraNativeBanner />
+            {otherArticles.length > 0 && (
+            <>
+                <Separator className="my-8" />
+                <div className="mt-8">
+                <OtherArticles articles={otherArticles} />
+                </div>
+            </>
+            )}
+        </div>
     </div>
   );
 }
