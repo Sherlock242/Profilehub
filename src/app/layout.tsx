@@ -34,6 +34,7 @@ export default async function RootLayout({
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2882939249270622"
      crossOrigin="anonymous"></script>
         <script type='text/javascript' src='//certainwolveshonestly.com/f6/68/47/f66847210a46c00edd766ff1c74e9c65.js'></script>
+        <script type='text/javascript' src='//certainwolveshonestly.com/a7/9d/03/a79d0371f40ef8bee8e62ac40a74fc5c.js'></script>
       </head>
       <body className="font-body antialiased h-full">
         <div className="overflow-x-hidden">
