@@ -12,7 +12,6 @@ import { Separator } from '@/components/ui/separator';
 import { ShareButton } from '@/components/articles/share-button';
 import { AdsterraNativeBanner } from '@/components/ads/adsterra-native-banner';
 import { AdsterraBanner300x250 } from '@/components/ads/adsterra-banner-300x250';
-import { Fragment } from 'react';
 
 export default async function ArticlePage({ params }: { params: { id: string } }) {
   const article = await getArticleById(params.id);
@@ -29,17 +28,6 @@ export default async function ArticlePage({ params }: { params: { id: string } }
   const components: Components = {
     p: ({ node, ...props }) => {
       pCount++;
-      // Inject native ad after the 2nd paragraph
-      if (pCount === 2) {
-        return (
-          <>
-            <p {...props} />
-            <div className="my-8">
-              <AdsterraNativeBanner />
-            </div>
-          </>
-        );
-      }
       // Inject banner ad after the 5th paragraph
       if (pCount === 5) {
         return (
@@ -95,6 +83,10 @@ export default async function ArticlePage({ params }: { params: { id: string } }
         </article>
         
         <div className="container max-w-3xl py-8 px-4">
+            <div className="my-8">
+              <AdsterraNativeBanner />
+            </div>
+
             {otherArticles.length > 0 && (
             <>
                 <Separator className="my-8" />
