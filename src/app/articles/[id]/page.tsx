@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { ShareButton } from '@/components/articles/share-button';
 import { AdsterraNativeBanner } from '@/components/ads/adsterra-native-banner';
 import { AdsterraBanner300x250 } from '@/components/ads/adsterra-banner-300x250';
+import { AdsterraBanner728x90 } from '@/components/ads/adsterra-banner-728x90';
 
 export default async function ArticlePage({ params }: { params: { id: string } }) {
   const article = await getArticleById(params.id);
@@ -35,6 +36,16 @@ export default async function ArticlePage({ params }: { params: { id: string } }
             <p {...props} />
             <div className="my-8 flex justify-center">
               <AdsterraBanner300x250 />
+            </div>
+          </>
+        );
+      }
+      if (pCount === 9) {
+        return (
+          <>
+            <p {...props} />
+            <div className="my-8 hidden md:flex justify-center">
+              <AdsterraBanner728x90 />
             </div>
           </>
         );
