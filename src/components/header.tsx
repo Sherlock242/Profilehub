@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -69,7 +70,7 @@ export function Header({ user }: { user: AppUser | null }) {
         <div className="flex items-center gap-2">
             <Sheet>
                 <SheetTrigger asChild>
-                    <button className="p-2 md:hidden">
+                    <button className="p-2 md-hidden">
                         <Menu className="h-6 w-6" />
                         <span className="sr-only">Toggle Navigation</span>
                     </button>
@@ -80,13 +81,13 @@ export function Header({ user }: { user: AppUser | null }) {
                       <SheetDescription className="sr-only">A list of pages to navigate to.</SheetDescription>
                     </SheetHeader>
                     <div className="flex flex-col gap-4 py-8">
-                        <SheetClose>
+                        <SheetClose asChild>
                           <Logo />
                         </SheetClose>
                         {navLinks.length > 0 && (
                           <nav className="flex flex-col gap-2">
                               {navLinks.map((link) => (
-                                  <SheetClose key={link.href}>
+                                  <SheetClose key={link.href} asChild>
                                       <Button asChild variant="ghost" className="justify-start">
                                           <a href={link.href}>{link.label}</a>
                                       </Button>
@@ -99,7 +100,7 @@ export function Header({ user }: { user: AppUser | null }) {
                     {!user && (
                         <div className="mt-auto flex flex-col gap-2">
                             <Separator />
-                            <SheetClose>
+                            <SheetClose asChild>
                                 <Button asChild variant="ghost">
                                     <a href="/login">
                                         <LogIn className="mr-2"/>
@@ -107,7 +108,7 @@ export function Header({ user }: { user: AppUser | null }) {
                                     </a>
                                 </Button>
                             </SheetClose>
-                             <SheetClose>
+                             <SheetClose asChild>
                                 <Button asChild>
                                     <a href="/signup">
                                         <UserPlus className="mr-2"/>
