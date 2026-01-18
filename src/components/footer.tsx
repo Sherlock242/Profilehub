@@ -1,7 +1,7 @@
 
 import { Logo } from './logo';
 
-export function Footer() {
+export function Footer({ year }: { year: number }) {
   return (
     <footer className="border-t">
       <div className="container mx-auto px-4 sm:px-6 py-8">
@@ -29,7 +29,7 @@ export function Footer() {
             </a>
         </div>
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} ProHub. All rights reserved.</p>
+          <p>&copy; {year} ProHub. All rights reserved.</p>
         </div>
       </div>
     </footer>
