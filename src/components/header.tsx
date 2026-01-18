@@ -81,7 +81,7 @@ export function Header({ user }: { user: AppUser | null }) {
                     </SheetHeader>
                     <div className="flex flex-col gap-4 py-8">
                         <SheetClose asChild>
-                          <a href="/"><Logo /></a>
+                          <Logo />
                         </SheetClose>
                         {navLinks.length > 0 && (
                           <nav className="flex flex-col gap-2">
@@ -120,12 +120,12 @@ export function Header({ user }: { user: AppUser | null }) {
                 </SheetContent>
             </Sheet>
             <div className={cn("hidden md:block", isSearchOpen && "hidden")}>
-              <a href="/"><Logo /></a>
+              <Logo />
             </div>
         </div>
 
         <div className={cn("absolute left-1/2 -translate-x-1/2 md:hidden", { "hidden": isSearchOpen })}>
-          <a href="/"><Logo /></a>
+          <Logo />
         </div>
 
         <nav className="hidden md:flex md:gap-4 lg:gap-6">
