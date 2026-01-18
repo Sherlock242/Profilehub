@@ -6,8 +6,6 @@ import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
 import { getUserOnServer } from '@/lib/auth';
 import { GoogleAnalytics } from '@/components/google-analytics';
-import { ProgressBar } from '@/components/progress-bar';
-import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'ProHub',
@@ -34,9 +32,6 @@ export default async function RootLayout({
       </head>
       <body className="font-body antialiased h-full">
         <div className="overflow-x-hidden">
-          <Suspense>
-            <ProgressBar />
-          </Suspense>
           <GoogleAnalytics gaId="G-9TK0FLDJ3Z" />
           <div className="flex flex-col min-h-screen">
             <Header user={user} />

@@ -20,7 +20,6 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle,
 import { Separator } from "./ui/separator";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
-import NProgress from "nprogress";
 
 export function Header({ user }: { user: AppUser | null }) {
   const router = useRouter();
@@ -37,7 +36,6 @@ export function Header({ user }: { user: AppUser | null }) {
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      NProgress.start();
       router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
       setIsSearchOpen(false);
       setSearchTerm("");
@@ -83,7 +81,7 @@ export function Header({ user }: { user: AppUser | null }) {
                     </SheetHeader>
                     <div className="flex flex-col gap-4 py-8">
                         <SheetClose asChild>
-                          <Logo />
+                          <a href="/"><Logo /></a>
                         </SheetClose>
                         {navLinks.length > 0 && (
                           <nav className="flex flex-col gap-2">
@@ -122,12 +120,12 @@ export function Header({ user }: { user: AppUser | null }) {
                 </SheetContent>
             </Sheet>
             <div className={cn("hidden md:block", isSearchOpen && "hidden")}>
-              <Logo />
+              <a href="/"><Logo /></a>
             </div>
         </div>
 
         <div className={cn("absolute left-1/2 -translate-x-1/2 md:hidden", { "hidden": isSearchOpen })}>
-          <Logo />
+          <a href="/"><Logo /></a>
         </div>
 
         <nav className="hidden md:flex md:gap-4 lg:gap-6">
