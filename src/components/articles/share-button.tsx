@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Share2, Copy } from 'lucide-react';
@@ -16,11 +16,13 @@ import {
 export function ShareButton({ title, url }: { title: string, url?: string }) {
   const pathname = usePathname();
   const { toast } = useToast();
-  const [isShareApiAvailable, setIsShareApiAvailable] = useState(false);
+  const [canShare, setCanShare] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  React.useEffect(() => {
-    if (typeof navigator !== 'undefined' && navigator.share) {
-        setIsShareApiAvailable(true);
+  useEffect(() => {
+    setMounted(true);
+    if (navigator.share) {
+      setCanShare(true);
     }
   }, []);
 
@@ -30,7 +32,7 @@ export function ShareButton({ title, url }: { title: string, url?: string }) {
 
     const shareUrl = url ? `${window.location.origin}${url}` : `${window.location.origin}${pathname}`;
     
-    if (isShareApiAvailable) {
+    if (mounted && canShare) {
       try {
         await navigator.share({
           title: title,
@@ -58,16 +60,19 @@ export function ShareButton({ title, url }: { title: string, url?: string }) {
     }
   };
 
+  const icon = mounted && canShare ? <Share2 className="h-5 w-5" /> : <Copy className="h-5 w-5" />;
+  const tooltipText = mounted && canShare ? 'Share article' : 'Copy link';
+
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" onClick={handleShare} aria-label="Share article">
-            {isShareApiAvailable ? <Share2 className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
+          <Button variant="ghost" size="icon" onClick={handleShare} aria-label={tooltipText}>
+            {icon}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{isShareApiAvailable ? 'Share article' : 'Copy link'}</p>
+          <p>{tooltipText}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
