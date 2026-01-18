@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { type Article } from '@/lib/definitions';
 import { Separator } from '../ui/separator';
+import { format } from 'date-fns';
 
 export function OtherArticles({ articles }: { articles: Article[] }) {
     if (!articles || articles.length === 0) {
@@ -30,7 +31,7 @@ export function OtherArticles({ articles }: { articles: Article[] }) {
                                         {article.title}
                                     </h3>
                                     <p className="text-muted-foreground text-sm mt-1">
-                                        {new Date(article.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+                                        {format(new Date(article.created_at), 'MMM d')}
                                     </p>
                                 </div>
                             </article>

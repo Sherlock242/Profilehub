@@ -1,3 +1,4 @@
+
 import { getUserOnServer } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { getArticles } from '@/lib/article-actions';
@@ -19,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { DeleteArticleButton } from '@/components/admin/delete-article-button';
+import { format } from 'date-fns';
 
 export default async function AdminPage() {
   const user = await getUserOnServer();
@@ -77,7 +79,7 @@ export default async function AdminPage() {
                   <TableRow key={article.id}>
                     <TableCell className="font-medium">{article.title}</TableCell>
                     <TableCell className="hidden sm:table-cell">
-                      {new Date(article.created_at).toLocaleDateString()}
+                      {format(new Date(article.created_at), 'PP')}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>

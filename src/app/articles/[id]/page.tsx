@@ -9,6 +9,7 @@ import { ArrowLeft } from 'lucide-react';
 import { OtherArticles } from '@/components/articles/other-articles';
 import { Separator } from '@/components/ui/separator';
 import { ShareButton } from '@/components/articles/share-button';
+import { format } from 'date-fns';
 
 export default async function ArticlePage({ params }: { params: { id: string } }) {
   const article = await getArticleById(params.id);
@@ -37,7 +38,7 @@ export default async function ArticlePage({ params }: { params: { id: string } }
               <ShareButton title={article.title} url={`/articles/${article.id}`} />
             </div>
           <p className="text-muted-foreground text-base sm:text-lg mb-6">
-            Posted on {new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            Posted on {format(new Date(article.created_at), 'MMMM d, yyyy')}
           </p>
 
           {article.image_url && (
