@@ -3,15 +3,13 @@
 import { getArticleById, getArticles } from '@/lib/article-actions';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import ReactMarkdown, { type Components } from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { OtherArticles } from '@/components/articles/other-articles';
 import { Separator } from '@/components/ui/separator';
 import { ShareButton } from '@/components/articles/share-button';
-import { AdsterraNativeBanner } from '@/components/ads/adsterra-native-banner';
-import { AdsterraBanner300x250 } from '@/components/ads/adsterra-banner-300x250';
 
 export default async function ArticlePage({ params }: { params: { id: string } }) {
   const article = await getArticleById(params.id);
@@ -23,25 +21,6 @@ export default async function ArticlePage({ params }: { params: { id: string } }
   // Fetch all articles and filter out the current one
   const allArticles = await getArticles();
   const otherArticles = allArticles.filter(a => a.id !== article.id);
-
-  let pCount = 0;
-  const components: Components = {
-    p: ({ node, ...props }) => {
-      pCount++;
-      // Inject banner ad after the 5th paragraph
-      if (pCount === 5) {
-        return (
-          <>
-            <p {...props} />
-            <div className="my-8 flex justify-center">
-              <AdsterraBanner300x250 />
-            </div>
-          </>
-        );
-      }
-      return <p {...props} />;
-    },
-  };
 
   return (
     <div className="animate-fade-in">
@@ -75,7 +54,7 @@ export default async function ArticlePage({ params }: { params: { id: string } }
 
           <div className="prose dark:prose-invert max-w-none prose-lg">
             {article.content ? (
-                <ReactMarkdown components={components}>{article.content}</ReactMarkdown>
+                <ReactMarkdown>{article.content}</ReactMarkdown>
             ): (
                 <p>{article.excerpt}</p>
             )}
@@ -83,10 +62,6 @@ export default async function ArticlePage({ params }: { params: { id: string } }
         </article>
         
         <div className="container max-w-3xl py-8 px-4">
-            <div className="my-8">
-              <AdsterraNativeBanner />
-            </div>
-
             {otherArticles.length > 0 && (
             <>
                 <Separator className="my-8" />
