@@ -1,9 +1,7 @@
-
 'use client';
 
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import Link from 'next/link';
 import Image from 'next/image';
 import { ArticleSectionSkeleton } from './article-section-skeleton';
 import { type Article } from '@/lib/definitions';
@@ -27,7 +25,7 @@ function ArticleList({ articles, title, description }: { articles: Article[], ti
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {articles.map((article) => (
               <Card key={article.id} className="overflow-hidden flex flex-col group">
-                <Link href={`/articles/${article.id}`} className="block overflow-hidden">
+                <a href={`/articles/${article.id}`} className="block overflow-hidden">
                   {article.image_url && (
                     <div className="relative w-full aspect-[16/9]">
                         <Image
@@ -38,10 +36,10 @@ function ArticleList({ articles, title, description }: { articles: Article[], ti
                         />
                     </div>
                   )}
-                </Link>
+                </a>
                 <CardContent className="p-6 flex-1 flex flex-col">
                   <h2 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                    <Link href={`/articles/${article.id}`}>{article.title}</Link>
+                    <a href={`/articles/${article.id}`}>{article.title}</a>
                   </h2>
                   <div className="text-muted-foreground mb-4 flex-grow prose dark:prose-invert prose-sm">
                     {article.excerpt ? (
@@ -52,9 +50,9 @@ function ArticleList({ articles, title, description }: { articles: Article[], ti
                         >{article.excerpt}</ReactMarkdown>
                     ) : null}
                   </div>
-                  <Link href={`/articles/${article.id}`} className="text-sm font-semibold text-primary hover:underline mt-auto">
+                  <a href={`/articles/${article.id}`} className="text-sm font-semibold text-primary hover:underline mt-auto">
                     Read More &rarr;
-                  </Link>
+                  </a>
                 </CardContent>
               </Card>
             ))}

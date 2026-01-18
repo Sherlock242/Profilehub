@@ -1,8 +1,6 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,10 +55,6 @@ export function Header({ user }: { user: AppUser | null }) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isSearchOpen]);
 
@@ -96,7 +90,7 @@ export function Header({ user }: { user: AppUser | null }) {
                               {navLinks.map((link) => (
                                   <SheetClose asChild key={link.href}>
                                       <Button asChild variant="ghost" className="justify-start">
-                                          <Link href={link.href}>{link.label}</Link>
+                                          <a href={link.href}>{link.label}</a>
                                       </Button>
                                   </SheetClose>
                               ))}
@@ -109,18 +103,18 @@ export function Header({ user }: { user: AppUser | null }) {
                             <Separator />
                             <SheetClose asChild>
                                 <Button asChild variant="ghost">
-                                    <Link href="/login">
+                                    <a href="/login">
                                         <LogIn className="mr-2"/>
                                         Log In
-                                    </Link>
+                                    </a>
                                 </Button>
                             </SheetClose>
                              <SheetClose asChild>
                                 <Button asChild>
-                                    <Link href="/signup">
+                                    <a href="/signup">
                                         <UserPlus className="mr-2"/>
                                         Sign Up
-                                    </Link>
+                                    </a>
                                 </Button>
                             </SheetClose>
                         </div>
@@ -139,7 +133,7 @@ export function Header({ user }: { user: AppUser | null }) {
         <nav className="hidden md:flex md:gap-4 lg:gap-6">
             {navLinks.map(link => (
                 <Button key={link.href} variant="ghost" size="sm" asChild>
-                    <Link href={link.href}>{link.label}</Link>
+                    <a href={link.href}>{link.label}</a>
                 </Button>
             ))}
         </nav>
@@ -202,17 +196,17 @@ export function Header({ user }: { user: AppUser | null }) {
                     <DropdownMenuSeparator />
                     {user.role === 'admin' && (
                     <DropdownMenuItem asChild>
-                        <Link href="/admin">
+                        <a href="/admin">
                         <Shield className="mr-2 h-4 w-4" />
                         <span>Admin</span>
-                        </Link>
+                        </a>
                     </DropdownMenuItem>
                     )}
                     <DropdownMenuItem asChild>
-                    <Link href="/profile">
+                    <a href="/profile">
                         <UserIcon className="mr-2 h-4 w-4" />
                         <span>Profile</span>
-                    </Link>
+                    </a>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
@@ -225,10 +219,10 @@ export function Header({ user }: { user: AppUser | null }) {
             ) : (
                 <div className="hidden md:flex items-center space-x-1">
                     <Button variant="ghost" asChild size="sm">
-                        <Link href="/login">Log in</Link>
+                        <a href="/login">Log in</a>
                     </Button>
                     <Button asChild size="sm">
-                        <Link href="/signup">Sign Up</Link>
+                        <a href="/signup">Sign Up</a>
                     </Button>
                 </div>
             )}

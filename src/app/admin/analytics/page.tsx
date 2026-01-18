@@ -1,7 +1,6 @@
 import { getUserOnServer } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 
@@ -16,10 +15,10 @@ export default async function AnalyticsPage() {
     <div className="container max-w-4xl py-8 animate-fade-in">
         <div className="mb-6">
             <Button asChild variant="ghost" size="sm">
-                <Link href="/admin">
+                <a href="/admin">
                     <ArrowLeft className="mr-2" />
                     Back to Dashboard
-                </Link>
+                </a>
             </Button>
         </div>
       <Card>

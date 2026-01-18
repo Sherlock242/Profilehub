@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import Image from 'next/image';
 import { type Article } from '@/lib/definitions';
 import { Separator } from '../ui/separator';
@@ -14,7 +13,7 @@ export function OtherArticles({ articles }: { articles: Article[] }) {
             <div className="space-y-6">
                 {articles.map((article, index) => (
                     <div key={article.id}>
-                        <Link href={`/articles/${article.id}`} className="group block">
+                        <a href={`/articles/${article.id}`} className="group block">
                             <article className="flex items-start gap-4">
                                 {article.image_url && (
                                     <div className="relative flex-shrink-0 w-24 h-24 rounded-md overflow-hidden">
@@ -35,7 +34,7 @@ export function OtherArticles({ articles }: { articles: Article[] }) {
                                     </p>
                                 </div>
                             </article>
-                        </Link>
+                        </a>
                         {index < articles.length - 1 && <Separator className="mt-6" />}
                     </div>
                 ))}

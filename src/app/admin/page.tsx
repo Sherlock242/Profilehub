@@ -1,7 +1,6 @@
 import { getUserOnServer } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { getArticles } from '@/lib/article-actions';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
@@ -35,10 +34,10 @@ export default async function AdminPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
         <Button asChild className="w-full sm:w-auto">
-          <Link href="/admin/new">
+          <a href="/admin/new">
             <PlusCircle className="mr-2 h-4 w-4" />
             Create New Article
-          </Link>
+          </a>
         </Button>
       </div>
       
@@ -50,10 +49,10 @@ export default async function AdminPage() {
             </CardHeader>
             <CardContent>
                 <Button asChild>
-                    <Link href="/admin/analytics">
+                    <a href="/admin/analytics">
                         <BarChart className="mr-2 h-4 w-4"/>
                         View Analytics
-                    </Link>
+                    </a>
                 </Button>
             </CardContent>
         </Card>
@@ -89,7 +88,7 @@ export default async function AdminPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem asChild>
-                            <Link href={`/admin/edit/${article.id}`}>Edit</Link>
+                            <a href={`/admin/edit/${article.id}`}>Edit</a>
                           </DropdownMenuItem>
                           <DeleteArticleButton articleId={article.id} />
                         </DropdownMenuContent>

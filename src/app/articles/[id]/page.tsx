@@ -5,7 +5,6 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { OtherArticles } from '@/components/articles/other-articles';
 import { Separator } from '@/components/ui/separator';
@@ -27,10 +26,10 @@ export default async function ArticlePage({ params }: { params: { id: string } }
         <article className="container max-w-3xl py-8 px-4">
             <div className="mb-6">
                 <Button asChild variant="ghost" size="sm">
-                    <Link href="/">
+                    <a href="/">
                         <ArrowLeft className="mr-2" />
                         Back to Blog
-                    </Link>
+                    </a>
                 </Button>
             </div>
             <div className="flex items-start justify-between gap-4 mb-4">

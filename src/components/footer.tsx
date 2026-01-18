@@ -1,5 +1,4 @@
 
-import Link from 'next/link';
 import { Logo } from './logo';
 
 export function Footer() {
@@ -13,21 +12,21 @@ export function Footer() {
           </p>
         </div>
         <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm mt-6">
-            <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">
+            <a href="/about" className="text-muted-foreground hover:text-primary transition-colors">
             About
-            </Link>
-            <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
+            </a>
+            <a href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
             Contact
-            </Link>
-            <Link href="/terms" className="text-muted-foreground hover:text-primary transition-colors">
+            </a>
+            <a href="/terms" className="text-muted-foreground hover:text-primary transition-colors">
             Terms & Conditions
-            </Link>
-            <Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
+            </a>
+            <a href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
             Privacy Policy
-            </Link>
-            <Link href="/disclaimer" className="text-muted-foreground hover:text-primary transition-colors">
+            </a>
+            <a href="/disclaimer" className="text-muted-foreground hover:text-primary transition-colors">
             Disclaimer
-            </Link>
+            </a>
         </div>
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} ProHub. All rights reserved.</p>

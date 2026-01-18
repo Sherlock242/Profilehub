@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import { type Article } from '@/lib/definitions';
@@ -15,18 +14,18 @@ export function LatestArticle({ article }: { article: Article }) {
                 Latest Article
             </Badge>
 
-            <Link href={`/articles/${article.id}`}>
+            <a href={`/articles/${article.id}`}>
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight hover:text-primary transition-colors">
                     {article.title}
                 </h1>
-            </Link>
+            </a>
 
             <p className="text-muted-foreground text-lg">
                 Posted on {new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
 
             {article.image_url && (
-                <Link href={`/articles/${article.id}`} className="block">
+                <a href={`/articles/${article.id}`} className="block">
                     <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg">
                     <Image
                         src={article.image_url}
@@ -35,7 +34,7 @@ export function LatestArticle({ article }: { article: Article }) {
                         className="object-cover"
                     />
                     </div>
-                </Link>
+                </a>
             )}
 
             <div className="prose dark:prose-invert max-w-none prose-lg">
@@ -46,9 +45,9 @@ export function LatestArticle({ article }: { article: Article }) {
                 )}
             </div>
 
-             <Link href={`/articles/${article.id}`} className="inline-block text-lg font-semibold text-primary hover:underline mt-4">
+             <a href={`/articles/${article.id}`} className="inline-block text-lg font-semibold text-primary hover:underline mt-4">
                 Continue Reading &rarr;
-            </Link>
+            </a>
         </article>
     );
 }

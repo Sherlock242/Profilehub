@@ -4,7 +4,6 @@ import { ArticleList } from '@/components/articles/article-list';
 import { notFound } from 'next/navigation';
 import { CATEGORIES } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
 // Make sure category names are URL-friendly
@@ -29,10 +28,10 @@ export default async function CategoryPage({ params }: { params: { categoryName:
     <div>
         <div className="container max-w-7xl pt-8">
              <Button asChild variant="ghost" size="sm">
-                <Link href="/">
+                <a href="/">
                     <ArrowLeft className="mr-2" />
                     Back to Blog
-                </Link>
+                </a>
             </Button>
         </div>
         <ArticleList articles={articles} title={title} description={description} />

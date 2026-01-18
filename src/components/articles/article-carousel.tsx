@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from "react"
@@ -12,7 +11,6 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { type Article } from "@/lib/definitions"
 import Image from "next/image"
-import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 import { ShareButton } from "./share-button";
 
@@ -30,7 +28,7 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
           <CarouselItem key={article.id} className="pl-4 md:pl-6 basis-[85%] sm:basis-[45%] md:basis-[40%] lg:basis-[30%] xl:basis-[22%]">
             <div className="p-1 h-full">
               <Card className="overflow-hidden flex flex-col h-full group">
-                <Link href={`/articles/${article.id}`} className="block overflow-hidden relative">
+                <a href={`/articles/${article.id}`} className="block overflow-hidden relative">
                     {article.image_url && (
                     <div className="relative w-full aspect-[16/9]">
                         <Image
@@ -41,10 +39,10 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
                         />
                     </div>
                     )}
-                </Link>
+                </a>
                 <CardContent className="p-4 sm:p-6 flex-1 flex flex-col">
                     <h3 className="text-lg font-semibold mb-2 transition-colors leading-tight">
-                        <Link href={`/articles/${article.id}`}>{article.title}</Link>
+                        <a href={`/articles/${article.id}`}>{article.title}</a>
                     </h3>
                     <div className="text-muted-foreground text-sm flex-grow line-clamp-3 prose dark:prose-invert prose-sm">
                       {article.excerpt ? (
@@ -57,9 +55,9 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
                       ) : null}
                     </div>
                     <div className="mt-4 flex justify-between items-center">
-                        <Link href={`/articles/${article.id}`} className="text-sm font-semibold text-primary hover:underline">
+                        <a href={`/articles/${article.id}`} className="text-sm font-semibold text-primary hover:underline">
                             Read More &rarr;
-                        </Link>
+                        </a>
                         <ShareButton title={article.title} url={`/articles/${article.id}`} />
                     </div>
                 </CardContent>

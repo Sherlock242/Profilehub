@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -120,9 +119,9 @@ export default function SignupPage() {
           </Form>
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
-            <Link href="/login" className="underline text-primary">
+            <a href="/login" className="underline text-primary">
               Log in
-            </Link>
+            </a>
           </div>
         </CardContent>
       </Card>
