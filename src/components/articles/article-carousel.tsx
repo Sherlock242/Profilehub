@@ -46,12 +46,7 @@ export function ArticleCarousel({ articles }: { articles: Article[] }) {
                     </h3>
                     <div className="text-muted-foreground text-sm flex-grow line-clamp-3 prose dark:prose-invert prose-sm">
                       {article.excerpt ? (
-                          <ReactMarkdown
-                            components={{
-                                p: ({node, ...props}) => <p className="text-muted-foreground" {...props} />,
-                                a: ({node, ...props}) => <a className="text-blue-600 hover:underline" {...props} />
-                            }}
-                          >{article.excerpt}</ReactMarkdown>
+                          <ReactMarkdown>{article.excerpt}</ReactMarkdown>
                       ) : null}
                     </div>
                     <div className="mt-4 flex justify-between items-center">

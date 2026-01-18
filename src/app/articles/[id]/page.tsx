@@ -55,7 +55,7 @@ export default async function ArticlePage({ params }: { params: { id: string } }
             {article.content ? (
                 <ReactMarkdown>{article.content}</ReactMarkdown>
             ): (
-                <p>{article.excerpt}</p>
+                article.excerpt && <ReactMarkdown>{article.excerpt}</ReactMarkdown>
             )}
           </div>
         </article>

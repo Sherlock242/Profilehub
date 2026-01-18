@@ -41,7 +41,7 @@ export function LatestArticle({ article }: { article: Article }) {
                 {article.content ? (
                     <ReactMarkdown>{article.content}</ReactMarkdown>
                 ): (
-                    <p>{article.excerpt}</p>
+                    article.excerpt && <ReactMarkdown>{article.excerpt}</ReactMarkdown>
                 )}
             </div>
 

@@ -43,11 +43,7 @@ function ArticleList({ articles, title, description }: { articles: Article[], ti
                   </h2>
                   <div className="text-muted-foreground mb-4 flex-grow prose dark:prose-invert prose-sm">
                     {article.excerpt ? (
-                        <ReactMarkdown
-                            components={{
-                                p: ({node, ...props}) => <p className="text-muted-foreground" {...props} />
-                            }}
-                        >{article.excerpt}</ReactMarkdown>
+                        <ReactMarkdown>{article.excerpt}</ReactMarkdown>
                     ) : null}
                   </div>
                   <a href={`/articles/${article.id}`} className="text-sm font-semibold text-primary hover:underline mt-auto">
