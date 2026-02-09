@@ -2,6 +2,19 @@
 import 'dotenv/config';
 import type {NextConfig} from 'next';
 
+const cspHeader = `
+    default-src 'self';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    img-src 'self' data: blob: https://images.unsplash.com https://picsum.photos https://placehold.co https://inzczaaadfmfusgekwio.supabase.co;
+    font-src 'self' https://fonts.gstatic.com;
+    connect-src 'self' https://inzczaaadfmfusgekwio.supabase.co https://www.google-analytics.com https://region1.google-analytics.com;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+`.replace(/\s{2,}/g, ' ').trim();
+
 const nextConfig: NextConfig = {
   /* config options here */
   typescript: {
@@ -45,8 +58,8 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'DENY',
+            key: 'Content-Security-Policy',
+            value: cspHeader,
           },
           {
             key: 'X-Content-Type-Options',
